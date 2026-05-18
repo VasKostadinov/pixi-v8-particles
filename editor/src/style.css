@@ -108,6 +108,17 @@ select {
 .actions button.ghost {
   background: transparent;
 }
+.actions button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.actions button:disabled:hover {
+  background: var(--panel-2);
+  border-color: var(--border);
+}
+.actions button.ghost:disabled:hover {
+  background: transparent;
+}
 
 /* ---------- workspace ---------- */
 #workspace {

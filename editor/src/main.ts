@@ -5,6 +5,7 @@ import "../../src/behaviors/editor";
 import { PreviewStage } from "./PreviewStage";
 import type { EditorCtx } from "./ctx";
 import { defaultConfig } from "./defaultConfig";
+import { createHistory, type History } from "./history";
 import { renderPanel } from "./panel";
 import { wireSplitter } from "./splitter";
 import { createToast } from "./toast";
@@ -90,20 +91,46 @@ async function boot(): Promise<void> {
   }).observe(previewEl);
 
   const toast = createToast(toastEl);
+
+  const rebuildPanel = () => {
+    const prevScroll = scrollEl.scrollTop;
+    renderPanel(scrollEl, config, ctx);
+    scrollEl.scrollTop = prevScroll;
+  };
+
+  // Forward-declared so ctx can call into history before it's constructed.
+  // History is built after the initial renderPanel so the baseline snapshot
+  // includes any defaults injected by control ensure() calls.
+  let history: History | null = null;
+
   const ctx: EditorCtx = {
-    notifyValue: () => stage.applyConfig(config),
+    notifyValue: () => {
+      stage.applyConfig(config);
+      history?.recordValueChange();
+    },
     notifyStructural: () => {
       stage.applyConfig(config);
-      const prevScroll = scrollEl.scrollTop;
-      renderPanel(scrollEl, config, ctx);
-      scrollEl.scrollTop = prevScroll;
+      rebuildPanel();
+      history?.recordStructuralChange();
     },
     toast,
   };
 
   renderPanel(scrollEl, config, ctx);
+  history = createHistory({
+    getSnapshot: () => JSON.stringify(config),
+    applySnapshot: (snap) => {
+      const next = JSON.parse(snap) as typeof config;
+      const target = config as unknown as Record<string, unknown>;
+      for (const k of Object.keys(target)) delete target[k];
+      Object.assign(config, next);
+      stage.applyConfig(config);
+      rebuildPanel();
+    },
+  });
   wireSplitter(splitterEl, workspaceEl);
-  wireTopbar(topbarEl, config, ctx);
+  wireTopbar(topbarEl, config, ctx, history);
+  wireHistoryShortcuts(history);
 
   // HUD: fps + alive particle count
   let frame = 0;
@@ -134,6 +161,40 @@ function loadStoredBg(): string | null {
 
 function hexToNumber(hex: string): number {
   return parseInt(hex.slice(1), 16);
+}
+
+function wireHistoryShortcuts(history: History): void {
+  // Skip when focused in a text-entry field so the browser's native text-undo
+  // wins for that input — sliders/buttons fall through to the global history.
+  const isTextField = (node: Element | null): boolean => {
+    if (!(node instanceof HTMLElement)) return false;
+    if (node instanceof HTMLTextAreaElement) return true;
+    if (node instanceof HTMLInputElement) {
+      const t = node.type.toLowerCase();
+      return (
+        t === "text" ||
+        t === "number" ||
+        t === "search" ||
+        t === "url" ||
+        t === "email" ||
+        t === "password"
+      );
+    }
+    return node.isContentEditable;
+  };
+
+  window.addEventListener("keydown", (ev) => {
+    if (!(ev.ctrlKey || ev.metaKey)) return;
+    if (isTextField(document.activeElement)) return;
+    const key = ev.key.toLowerCase();
+    if (key === "z" && !ev.shiftKey) {
+      ev.preventDefault();
+      history.undo();
+    } else if ((key === "z" && ev.shiftKey) || key === "y") {
+      ev.preventDefault();
+      history.redo();
+    }
+  });
 }
 
 function loadStoredFollowMouse(): boolean {

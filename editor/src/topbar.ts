@@ -3,11 +3,28 @@ import type { EditorCtx } from "./ctx";
 import { defaultConfig } from "./defaultConfig";
 import { on } from "./dom";
 import { copyToClipboard, downloadJson, exportConfig } from "./exportJson";
+import type { History } from "./history";
 import { parseImport, readFileAsText } from "./importJson";
 
-export function wireTopbar(topbar: HTMLElement, config: EmitterConfigV3, ctx: EditorCtx): void {
+export function wireTopbar(
+  topbar: HTMLElement,
+  config: EmitterConfigV3,
+  ctx: EditorCtx,
+  history: History,
+): void {
   const button = (action: string) =>
     topbar.querySelector<HTMLButtonElement>(`button[data-action="${action}"]`);
+
+  const undoBtn = button("undo")!;
+  const redoBtn = button("redo")!;
+  on(undoBtn, "click", () => history.undo());
+  on(redoBtn, "click", () => history.redo());
+  const refreshHistoryButtons = () => {
+    undoBtn.disabled = !history.canUndo();
+    redoBtn.disabled = !history.canRedo();
+  };
+  history.subscribe(refreshHistoryButtons);
+  refreshHistoryButtons();
 
   on(button("copy")!, "click", async () => {
     const text = exportConfig(config);
