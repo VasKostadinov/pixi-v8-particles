@@ -34,5 +34,13 @@ Rectangle.editorConfig = {
       description: "The height of the rectangle.",
       default: 10,
     },
+    {
+      type: "boolean",
+      name: "edges",
+      title: "Edges Only",
+      description:
+        "If enabled, particles spawn only along the perimeter (frame) of the rectangle instead of inside it.",
+      default: false,
+    },
   ],
 };
