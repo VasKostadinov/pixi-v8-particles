@@ -5,6 +5,9 @@ import type { EmitterConfigV3 } from "../../src/EmitterConfig";
 export class PreviewStage {
   private parent: Container;
   private emitter: Emitter | null = null;
+  private followMouse = false;
+  private mouseLocal: { x: number; y: number } | null = null;
+  private currentConfig: EmitterConfigV3 | null = null;
 
   constructor(private app: Application) {
     this.parent = new ParticleContainer();
@@ -12,11 +15,32 @@ export class PreviewStage {
     this.relayout();
     app.ticker.add((time: Ticker) => this.update(time.deltaMS * 0.001));
     window.addEventListener("resize", () => this.relayout());
+
+    const canvas = app.canvas;
+    canvas.addEventListener("pointermove", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      // Convert client coords → parent-local coords (parent is centered).
+      this.mouseLocal = {
+        x: e.clientX - rect.left - this.app.renderer.width * 0.5,
+        y: e.clientY - rect.top - this.app.renderer.height * 0.5,
+      };
+    });
+    canvas.addEventListener("pointerleave", () => {
+      this.mouseLocal = null;
+    });
   }
 
   relayout() {
     this.parent.x = this.app.renderer.width * 0.5;
     this.parent.y = this.app.renderer.height * 0.5;
+  }
+
+  setFollowMouse(on: boolean) {
+    this.followMouse = on;
+    if (!on && this.emitter && this.currentConfig) {
+      const pos = this.currentConfig.pos ?? { x: 0, y: 0 };
+      this.emitter.updateSpawnPos(pos.x, pos.y);
+    }
   }
 
   applyConfig(config: EmitterConfigV3) {
@@ -25,6 +49,7 @@ export class PreviewStage {
       this.emitter = null;
     }
     const resolved = prepareForRuntime(config);
+    this.currentConfig = resolved;
     this.ensureParentFor(resolved);
     try {
       this.emitter = new Emitter(this.parent, resolved);
@@ -52,7 +77,12 @@ export class PreviewStage {
   }
 
   private update(deltaSec: number) {
-    if (this.emitter) this.emitter.update(deltaSec);
+    if (this.emitter) {
+      if (this.followMouse && this.mouseLocal) {
+        this.emitter.updateSpawnPos(this.mouseLocal.x, this.mouseLocal.y);
+      }
+      this.emitter.update(deltaSec);
+    }
   }
 
   particleCount(): number {

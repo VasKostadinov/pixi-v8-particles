@@ -21,6 +21,7 @@ async function boot(): Promise<void> {
   const hudFps = document.getElementById("fps");
   const bgPickerEl = document.getElementById("bg-picker");
   const bgPickerInput = bgPickerEl?.querySelector<HTMLInputElement>('input[type="color"]') ?? null;
+  const followMouseBtn = document.getElementById("follow-mouse");
   if (
     !(previewEl instanceof HTMLElement) ||
     !(scrollEl instanceof HTMLElement) ||
@@ -31,7 +32,8 @@ async function boot(): Promise<void> {
     !(hudCount instanceof HTMLElement) ||
     !(hudFps instanceof HTMLElement) ||
     !(bgPickerEl instanceof HTMLElement) ||
-    !(bgPickerInput instanceof HTMLInputElement)
+    !(bgPickerInput instanceof HTMLInputElement) ||
+    !(followMouseBtn instanceof HTMLButtonElement)
   ) {
     throw new Error("Editor DOM scaffold missing");
   }
@@ -61,6 +63,22 @@ async function boot(): Promise<void> {
   const stage = new PreviewStage(app);
   const config = defaultConfig();
   stage.applyConfig(config);
+
+  const initialFollow = loadStoredFollowMouse();
+  const applyFollow = (on: boolean) => {
+    stage.setFollowMouse(on);
+    followMouseBtn.classList.toggle("on", on);
+    app.canvas.style.cursor = on ? "crosshair" : "";
+    try {
+      localStorage.setItem("preview-follow-mouse", on ? "1" : "0");
+    } catch {
+      // localStorage may be blocked — non-fatal.
+    }
+  };
+  applyFollow(initialFollow);
+  followMouseBtn.addEventListener("click", () => {
+    applyFollow(!followMouseBtn.classList.contains("on"));
+  });
 
   // Pixi's resizeTo only listens to window 'resize', so dragging the splitter
   // changes the preview's clientWidth without Pixi noticing — the CSS rule on
@@ -114,4 +132,12 @@ function loadStoredBg(): string | null {
 
 function hexToNumber(hex: string): number {
   return parseInt(hex.slice(1), 16);
+}
+
+function loadStoredFollowMouse(): boolean {
+  try {
+    return localStorage.getItem("preview-follow-mouse") === "1";
+  } catch {
+    return false;
+  }
 }
