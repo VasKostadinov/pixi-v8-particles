@@ -27,7 +27,9 @@ function intValueComplex(this: PropertyList<number>, lerp: number): number {
   let current = this.first;
   let next = current.next;
 
-  while (lerp > next.time) {
+  // `next.next &&` guard: lerp can drift past 1.0 from `age * (1/maxLife)`
+  // float precision, walking past the last node and crashing on null.
+  while (next.next && lerp > next.time) {
     current = next;
     next = next.next;
   }
@@ -44,7 +46,8 @@ function intColorComplex(this: PropertyList<Color>, lerp: number): number {
   let current = this.first;
   let next = current.next;
 
-  while (lerp > next.time) {
+  // See intValueComplex — same float-drift guard.
+  while (next.next && lerp > next.time) {
     current = next;
     next = next.next;
   }

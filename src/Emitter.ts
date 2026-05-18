@@ -1,10 +1,10 @@
 // @ts-nocheck — vendored from pixijs-userland/particle-emitter; loose typing matches upstream.
-import { generateEase, rotatePoint, SimpleEase } from "./ParticleUtils";
-import { Particle } from "./Particle";
-import { FastParticle } from "./FastParticle";
-import { EmitterConfigV3 } from "./EmitterConfig";
 import { Container, Point, Ticker } from "pixi.js";
 import { BehaviorOrder, IEmitterBehavior, IEmitterBehaviorClass } from "./behaviors/Behaviors";
+import { EmitterConfigV3 } from "./EmitterConfig";
+import { FastParticle } from "./FastParticle";
+import { Particle } from "./Particle";
+import { generateEase, rotatePoint, SimpleEase } from "./ParticleUtils";
 
 type AnyParticle = Particle | FastParticle;
 type ParticleConstructor = new (emitter: Emitter) => AnyParticle;
@@ -278,8 +278,7 @@ export class Emitter {
     return this._frequency;
   }
   public set frequency(value: number) {
-    // do some error checking to prevent infinite loops
-    if (typeof value === "number" && value > 0) {
+    if (typeof value === "number" && value > 1e-4) {
       this._frequency = value;
     } else {
       this._frequency = 1;

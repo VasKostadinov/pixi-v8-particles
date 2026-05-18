@@ -4,7 +4,7 @@ import { Particle } from "../Particle";
 import { rotatePoint, verbose } from "../ParticleUtils";
 import { PropertyList } from "../PropertyList";
 import { PropertyNode, ValueList } from "../PropertyNode";
-import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
+import { BehaviorOrder, IEmitterBehavior } from "./Behaviors";
 import { BehaviorEditorConfig } from "./editor/Types";
 
 /**
@@ -84,7 +84,7 @@ const WHITELISTER = new RegExp(
  * @return The path function - takes x, outputs y.
  */
 function parsePath(pathString: string): (x: number) => number {
-  const matches = pathString.match(WHITELISTER);
+  const matches = pathString.match(WHITELISTER) ?? [];
 
   for (let i = matches.length - 1; i >= 0; --i) {
     if (MATH_FUNCS.indexOf(matches[i]) >= 0) {
@@ -169,7 +169,7 @@ export class PathBehavior implements IEmitterBehavior {
           if (verbose) {
             console.error("PathParticle: error in parsing path expression", e);
           }
-          this.path = null;
+          this.path = (x) => x;
         }
       }
     } else {

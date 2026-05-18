@@ -13,7 +13,13 @@ export class PreviewStage {
     this.parent = new ParticleContainer();
     app.stage.addChild(this.parent);
     this.relayout();
-    app.ticker.add((time: Ticker) => this.update(time.deltaMS * 0.001));
+    app.ticker.add((time: Ticker) => {
+      try {
+        this.update(time.deltaMS * 0.001);
+      } catch (err) {
+        console.error("emitter update failed", err);
+      }
+    });
     window.addEventListener("resize", () => this.relayout());
 
     const canvas = app.canvas;
