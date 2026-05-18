@@ -1,3 +1,4 @@
+import "pixi.js/advanced-blend-modes";
 import "../../src";
 import "../../src/behaviors/editor";
 import { Application } from "pixi.js";

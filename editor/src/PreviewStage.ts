@@ -31,12 +31,30 @@ export class PreviewStage {
       this.emitter = null;
     }
     const resolved = prepareForRuntime(config);
+    this.ensureParentFor(resolved);
     try {
       this.emitter = new Emitter(this.parent, resolved);
     } catch (err) {
       console.warn("Invalid emitter config", err);
       this.emitter = null;
     }
+  }
+
+  /**
+   * ParticleContainer can't render per-particle blend modes. If the config needs one,
+   * fall back to a plain Container (Sprite-based Particle path); otherwise keep the
+   * fast ParticleContainer.
+   */
+  private ensureParentFor(config: EmitterConfigV3) {
+    const wantSpritePath = needsSpriteBackend(config);
+    const isParticleContainer = this.parent instanceof ParticleContainer;
+    if (wantSpritePath === !isParticleContainer) return;
+
+    this.app.stage.removeChild(this.parent);
+    this.parent.destroy({ children: true });
+    this.parent = wantSpritePath ? new Container() : new ParticleContainer();
+    this.app.stage.addChild(this.parent);
+    this.relayout();
   }
 
   private update(deltaSec: number) {
@@ -54,6 +72,12 @@ export class PreviewStage {
 /*   - resolve texture strings to Texture instances                    */
 /*   - normalize ValueLists so the runtime can't trip on edge cases    */
 /* ------------------------------------------------------------------ */
+function needsSpriteBackend(config: EmitterConfigV3): boolean {
+  const blend = config.behaviors.find((b) => b.type === "blendMode");
+  const mode = (blend?.config as { blendMode?: string } | undefined)?.blendMode;
+  return !!mode && mode !== "normal";
+}
+
 function prepareForRuntime(config: EmitterConfigV3): EmitterConfigV3 {
   const cloned: EmitterConfigV3 = {
     ...config,
