@@ -12,6 +12,7 @@
         <div class="brand">pixi-v8-particles · editor</div>
         <div class="actions">
           <button data-action="reset" class="ghost">Reset</button>
+          <button data-action="import">Import</button>
           <button data-action="copy" class="primary">Copy JSON</button>
           <button data-action="download">Download</button>
         </div>
@@ -43,6 +44,34 @@
         </aside>
       </main>
       <div id="toast"></div>
+      <dialog id="import-dialog">
+        <form method="dialog" class="import-form">
+          <div class="import-head">
+            <h2>Import emitter config</h2>
+            <button type="button" class="import-close" data-action="close" aria-label="Close">
+              ×
+            </button>
+          </div>
+          <p class="import-hint">
+            Paste an EmitterConfigV3 JSON below, or load a <code>.json</code> file.
+          </p>
+          <label class="import-file">
+            <span>Load file…</span>
+            <input type="file" accept="application/json,.json" data-action="file" />
+          </label>
+          <textarea
+            data-action="text"
+            class="import-textarea"
+            spellcheck="false"
+            placeholder='{ "lifetime": { "min": 1, "max": 2 }, "frequency": 0.01, "pos": { "x": 0, "y": 0 }, "behaviors": [ ... ] }'
+          ></textarea>
+          <div class="import-error" data-action="error" hidden></div>
+          <div class="import-actions">
+            <button type="button" class="ghost" data-action="cancel">Cancel</button>
+            <button type="button" class="primary" data-action="apply">Import</button>
+          </div>
+        </form>
+      </dialog>
     </div>
     <script type="module" src="./src/main.ts"></script>
   </body>
