@@ -1,9 +1,9 @@
 // @ts-nocheck — vendored from pixijs-userland/particle-emitter; loose typing matches upstream.
-import { Texture } from 'pixi.js';
-import { Particle } from '../Particle';
-import { IEmitterBehavior, BehaviorOrder } from './Behaviors';
-import { GetTextureFromString } from '../ParticleUtils';
-import { BehaviorEditorConfig } from './editor/Types';
+import { Texture } from "pixi.js";
+import { Particle } from "../Particle";
+import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
+import { GetTextureFromString } from "../ParticleUtils";
+import { BehaviorEditorConfig } from "./editor/Types";
 
 /**
  * A Texture behavior that assigns a texture to each particle from its list, in order, before looping around to the first
@@ -19,37 +19,34 @@ import { BehaviorEditorConfig } from './editor/Types';
  * }
  * ```
  */
-export class OrderedTextureBehavior implements IEmitterBehavior
-{
-    public static type = 'textureOrdered';
-    public static editorConfig: BehaviorEditorConfig = null;
+export class OrderedTextureBehavior implements IEmitterBehavior {
+  public static type = "textureOrdered";
+  public static editorConfig: BehaviorEditorConfig = null;
 
-    public order = BehaviorOrder.Normal;
-    private textures: Texture[];
-    private index: number;
-    constructor(config: {
-        /**
-         * Images to use for each particle, used in order before looping around
-         */
-        textures: Texture[];
-    })
-    {
+  public order = BehaviorOrder.Normal;
+  private textures: Texture[];
+  private index: number;
+  constructor(config: {
+    /**
+     * Images to use for each particle, used in order before looping around
+     */
+    textures: Texture[];
+  }) {
+    this.index = 0;
+    this.textures = config.textures.map((tex) =>
+      typeof tex === "string" ? GetTextureFromString(tex) : tex,
+    );
+  }
+
+  initParticles(first: Particle): void {
+    let next = first;
+
+    while (next) {
+      next.texture = this.textures[this.index];
+      if (++this.index >= this.textures.length) {
         this.index = 0;
-        this.textures = config.textures.map((tex) => (typeof tex === 'string' ? GetTextureFromString(tex) : tex));
+      }
+      next = next.next;
     }
-
-    initParticles(first: Particle): void
-    {
-        let next = first;
-
-        while (next)
-        {
-            next.texture = this.textures[this.index];
-            if (++this.index >= this.textures.length)
-            {
-                this.index = 0;
-            }
-            next = next.next;
-        }
-    }
+  }
 }

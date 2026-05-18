@@ -24,11 +24,7 @@ function ensure<T>(target: Target, key: string, factory: () => T): T {
 }
 
 /* ---------- number ---------- */
-export function numberControl(
-  target: Target,
-  p: NumberProperty,
-  ctx: EditorCtx,
-): HTMLElement {
+export function numberControl(target: Target, p: NumberProperty, ctx: EditorCtx): HTMLElement {
   ensure(target, p.name, () => p.default);
   const value = target[p.name] as number;
 
@@ -80,20 +76,12 @@ function stepFor(min: number, max: number): string {
 }
 
 /* ---------- color ---------- */
-export function colorControl(
-  target: Target,
-  p: ColorProperty,
-  ctx: EditorCtx,
-): HTMLElement {
+export function colorControl(target: Target, p: ColorProperty, ctx: EditorCtx): HTMLElement {
   ensure(target, p.name, () => p.default);
   return colorPickerEl(target, p.name, ctx);
 }
 
-export function colorPickerEl(
-  target: Target,
-  key: string,
-  ctx: EditorCtx,
-): HTMLElement {
+export function colorPickerEl(target: Target, key: string, ctx: EditorCtx): HTMLElement {
   const value = normalizeHex(target[key] as string);
   target[key] = value;
 
@@ -130,11 +118,7 @@ function normalizeHex(value: string): string {
 }
 
 /* ---------- boolean ---------- */
-export function booleanControl(
-  target: Target,
-  p: BooleanProperty,
-  ctx: EditorCtx,
-): HTMLElement {
+export function booleanControl(target: Target, p: BooleanProperty, ctx: EditorCtx): HTMLElement {
   ensure(target, p.name, () => p.default);
   const value = !!target[p.name];
   return booleanEl(value, (v) => {
@@ -154,11 +138,7 @@ export function booleanEl(value: boolean, onChange: (v: boolean) => void): HTMLE
 }
 
 /* ---------- text ---------- */
-export function textControl(
-  target: Target,
-  p: TextProperty,
-  ctx: EditorCtx,
-): HTMLElement {
+export function textControl(target: Target, p: TextProperty, ctx: EditorCtx): HTMLElement {
   ensure(target, p.name, () => p.default);
   const input = el("input", { class: "input", value: String(target[p.name] ?? "") });
   on(input, "input", () => {
@@ -169,11 +149,7 @@ export function textControl(
 }
 
 /* ---------- image (URL string) ---------- */
-export function imageControl(
-  target: Target,
-  p: ImageProperty,
-  ctx: EditorCtx,
-): HTMLElement {
+export function imageControl(target: Target, p: ImageProperty, ctx: EditorCtx): HTMLElement {
   ensure(target, p.name, () => "");
   const input = el("input", {
     class: "input",
@@ -188,11 +164,7 @@ export function imageControl(
 }
 
 /* ---------- select ---------- */
-export function selectControl(
-  target: Target,
-  p: SelectProperty,
-  ctx: EditorCtx,
-): HTMLElement {
+export function selectControl(target: Target, p: SelectProperty, ctx: EditorCtx): HTMLElement {
   ensure(target, p.name, () => p.default);
   const sel = el("select", { class: "select" });
   for (const opt of p.options) {
@@ -208,11 +180,7 @@ export function selectControl(
 }
 
 /* ---------- point ---------- */
-export function pointControl(
-  target: Target,
-  p: PointProperty,
-  ctx: EditorCtx,
-): HTMLElement {
+export function pointControl(target: Target, p: PointProperty, ctx: EditorCtx): HTMLElement {
   const obj = ensure(target, p.name, () => ({ ...p.default })) as {
     x: number;
     y: number;

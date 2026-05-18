@@ -4,10 +4,7 @@ const STORAGE_KEY = "pixi-v8-particles-editor:panel-width";
 const MIN = 320;
 const MAX_RATIO = 0.7;
 
-export function wireSplitter(
-  splitter: HTMLElement,
-  workspace: HTMLElement,
-): void {
+export function wireSplitter(splitter: HTMLElement, workspace: HTMLElement): void {
   const stored = window.localStorage.getItem(STORAGE_KEY);
   if (stored) {
     const px = parseInt(stored, 10);
@@ -32,9 +29,7 @@ export function wireSplitter(
     dragging = false;
     splitter.classList.remove("dragging");
     splitter.releasePointerCapture(ev.pointerId);
-    const cur = getComputedStyle(document.documentElement).getPropertyValue(
-      "--panel-width",
-    );
+    const cur = getComputedStyle(document.documentElement).getPropertyValue("--panel-width");
     window.localStorage.setItem(STORAGE_KEY, parseInt(cur, 10).toString());
   });
 }

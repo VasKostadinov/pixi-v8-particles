@@ -1,10 +1,4 @@
-import {
-  Application,
-  Container,
-  ParticleContainer,
-  Texture,
-  type Ticker,
-} from "pixi.js";
+import { Application, Container, ParticleContainer, Texture, type Ticker } from "pixi.js";
 import { Emitter } from "../../src/Emitter";
 import type { EmitterConfigV3 } from "../../src/EmitterConfig";
 
@@ -97,10 +91,7 @@ const VALUE_LIST_KEYS_BY_TYPE: Record<string, string[]> = {
   movePath: ["speed"],
 };
 
-function normalizeBehaviorConfig(
-  type: string,
-  src: unknown,
-): Record<string, unknown> {
+function normalizeBehaviorConfig(type: string, src: unknown): Record<string, unknown> {
   const cfg: Record<string, unknown> = { ...(src as object) };
 
   // textures

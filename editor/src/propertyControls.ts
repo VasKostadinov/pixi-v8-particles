@@ -30,39 +30,25 @@ export function renderProperty(
 ): void {
   switch (prop.type) {
     case "number":
-      parent.appendChild(
-        makeRow(prop.title, numberControl(target, prop, ctx), prop.description),
-      );
+      parent.appendChild(makeRow(prop.title, numberControl(target, prop, ctx), prop.description));
       return;
     case "color":
-      parent.appendChild(
-        makeRow(prop.title, colorControl(target, prop, ctx), prop.description),
-      );
+      parent.appendChild(makeRow(prop.title, colorControl(target, prop, ctx), prop.description));
       return;
     case "boolean":
-      parent.appendChild(
-        makeRow(prop.title, booleanControl(target, prop, ctx), prop.description),
-      );
+      parent.appendChild(makeRow(prop.title, booleanControl(target, prop, ctx), prop.description));
       return;
     case "text":
-      parent.appendChild(
-        makeRow(prop.title, textControl(target, prop, ctx), prop.description),
-      );
+      parent.appendChild(makeRow(prop.title, textControl(target, prop, ctx), prop.description));
       return;
     case "image":
-      parent.appendChild(
-        makeRow(prop.title, imageControl(target, prop, ctx), prop.description),
-      );
+      parent.appendChild(makeRow(prop.title, imageControl(target, prop, ctx), prop.description));
       return;
     case "select":
-      parent.appendChild(
-        makeRow(prop.title, selectControl(target, prop, ctx), prop.description),
-      );
+      parent.appendChild(makeRow(prop.title, selectControl(target, prop, ctx), prop.description));
       return;
     case "point":
-      parent.appendChild(
-        makeRow(prop.title, pointControl(target, prop, ctx), prop.description),
-      );
+      parent.appendChild(makeRow(prop.title, pointControl(target, prop, ctx), prop.description));
       return;
     case "numberList":
       parent.appendChild(numberListControl(target, prop, ctx));
@@ -90,23 +76,14 @@ function renderObject(
 ): void {
   const key = p.name || "__inline";
   const obj =
-    p.name === ""
-      ? target
-      : ((target[key] ??= buildDefault(p.props)), target[key] as Target);
+    p.name === "" ? target : ((target[key] ??= buildDefault(p.props)), target[key] as Target);
   if (p.title && p.name) {
-    parent.appendChild(
-      el("div", { class: "section-title", style: "margin-top:4px" }, [p.title]),
-    );
+    parent.appendChild(el("div", { class: "section-title", style: "margin-top:4px" }, [p.title]));
   }
   for (const sp of p.props) renderProperty(parent, obj, sp, ctx);
 }
 
-function renderList(
-  parent: HTMLElement,
-  target: Target,
-  p: ListProperty,
-  ctx: EditorCtx,
-): void {
+function renderList(parent: HTMLElement, target: Target, p: ListProperty, ctx: EditorCtx): void {
   if (target[p.name] === undefined) target[p.name] = [];
   const arr = target[p.name] as unknown[];
 
@@ -120,7 +97,10 @@ function renderList(
   arr.forEach((_entry, i) => {
     const row = el("div", { class: "row" });
     const label = el("div", { class: "label" }, [`${p.entryType.title || "item"} ${i}`]);
-    const control = el("div", { class: "control", style: "flex-direction:column; align-items:stretch; gap:6px" });
+    const control = el("div", {
+      class: "control",
+      style: "flex-direction:column; align-items:stretch; gap:6px",
+    });
     renderProperty(
       control,
       arr as unknown as Target,
@@ -165,10 +145,14 @@ function renderSubConfig(
   const metas = [...dict.values()];
   for (const meta of metas) {
     const isActive = target[p.name] === meta.type;
-    const tab = el("button", {
-      class: isActive ? "tab active" : "tab",
-      type: "button",
-    }, [meta.editorConfig.title || meta.type]);
+    const tab = el(
+      "button",
+      {
+        class: isActive ? "tab active" : "tab",
+        type: "button",
+      },
+      [meta.editorConfig.title || meta.type],
+    );
     on(tab, "click", () => {
       if (target[p.name] === meta.type) return;
       target[p.name] = meta.type;

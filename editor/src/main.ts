@@ -20,8 +20,7 @@ async function boot(): Promise<void> {
   const hudCount = document.getElementById("particle-count");
   const hudFps = document.getElementById("fps");
   const bgPickerEl = document.getElementById("bg-picker");
-  const bgPickerInput =
-    bgPickerEl?.querySelector<HTMLInputElement>('input[type="color"]') ?? null;
+  const bgPickerInput = bgPickerEl?.querySelector<HTMLInputElement>('input[type="color"]') ?? null;
   if (
     !(previewEl instanceof HTMLElement) ||
     !(scrollEl instanceof HTMLElement) ||

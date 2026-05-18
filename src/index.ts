@@ -1,5 +1,5 @@
-import { Emitter } from './Emitter';
-import * as behaviors from './behaviors';
+import { Emitter } from "./Emitter";
+import * as behaviors from "./behaviors";
 
 Emitter.registerBehavior(behaviors.AccelerationBehavior);
 Emitter.registerBehavior(behaviors.AlphaBehavior);
@@ -24,12 +24,12 @@ Emitter.registerBehavior(behaviors.SingleTextureBehavior);
 Emitter.registerBehavior(behaviors.SpeedBehavior);
 Emitter.registerBehavior(behaviors.StaticSpeedBehavior);
 
-export * as behaviors from './behaviors';
-export * as ParticleUtils from './ParticleUtils';
-export * from './Particle';
-export * from './FastParticle';
-export * from './Emitter';
-export * from './EmitterConfig';
-export * from './PropertyList';
-export * from './PropertyNode';
-export * from './LinkedListContainer';
+export * as behaviors from "./behaviors";
+export * as ParticleUtils from "./ParticleUtils";
+export * from "./Particle";
+export * from "./FastParticle";
+export * from "./Emitter";
+export * from "./EmitterConfig";
+export * from "./PropertyList";
+export * from "./PropertyNode";
+export * from "./LinkedListContainer";

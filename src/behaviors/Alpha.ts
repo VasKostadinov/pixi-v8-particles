@@ -1,9 +1,9 @@
 // @ts-nocheck — vendored from pixijs-userland/particle-emitter; loose typing matches upstream.
-import { Particle } from '../Particle';
-import { PropertyList } from '../PropertyList';
-import { PropertyNode, ValueList } from '../PropertyNode';
-import { IEmitterBehavior, BehaviorOrder } from './Behaviors';
-import { BehaviorEditorConfig } from './editor/Types';
+import { Particle } from "../Particle";
+import { PropertyList } from "../PropertyList";
+import { PropertyNode, ValueList } from "../PropertyNode";
+import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
+import { BehaviorEditorConfig } from "./editor/Types";
 
 /**
  * An Alpha behavior that applies an interpolated or stepped list of values to the particle's opacity.
@@ -20,39 +20,34 @@ import { BehaviorEditorConfig } from './editor/Types';
  * }
  * ```
  */
-export class AlphaBehavior implements IEmitterBehavior
-{
-    public static type = 'alpha';
-    public static editorConfig: BehaviorEditorConfig = null;
+export class AlphaBehavior implements IEmitterBehavior {
+  public static type = "alpha";
+  public static editorConfig: BehaviorEditorConfig = null;
 
-    public order = BehaviorOrder.Normal;
-    private list: PropertyList<number>;
-    constructor(config: {
-        /**
-         * Transparency of the particles from 0 (transparent) to 1 (opaque)
-         */
-        alpha: ValueList<number>;
-    })
-    {
-        this.list = new PropertyList(false);
-        this.list.reset(PropertyNode.createList(config.alpha));
+  public order = BehaviorOrder.Normal;
+  private list: PropertyList<number>;
+  constructor(config: {
+    /**
+     * Transparency of the particles from 0 (transparent) to 1 (opaque)
+     */
+    alpha: ValueList<number>;
+  }) {
+    this.list = new PropertyList(false);
+    this.list.reset(PropertyNode.createList(config.alpha));
+  }
+
+  initParticles(first: Particle): void {
+    let next = first;
+
+    while (next) {
+      next.alpha = this.list.first.value;
+      next = next.next;
     }
+  }
 
-    initParticles(first: Particle): void
-    {
-        let next = first;
-
-        while (next)
-        {
-            next.alpha = this.list.first.value;
-            next = next.next;
-        }
-    }
-
-    updateParticle(particle: Particle): void
-    {
-        particle.alpha = this.list.interpolate(particle.agePercent);
-    }
+  updateParticle(particle: Particle): void {
+    particle.alpha = this.list.interpolate(particle.agePercent);
+  }
 }
 
 /**
@@ -68,31 +63,27 @@ export class AlphaBehavior implements IEmitterBehavior
  * }
  * ```
  */
-export class StaticAlphaBehavior implements IEmitterBehavior
-{
-    public static type = 'alphaStatic';
-    public static editorConfig: BehaviorEditorConfig = null;
+export class StaticAlphaBehavior implements IEmitterBehavior {
+  public static type = "alphaStatic";
+  public static editorConfig: BehaviorEditorConfig = null;
 
-    public order = BehaviorOrder.Normal;
-    private value: number;
-    constructor(config: {
-        /**
-         * Transparency of the particles from 0 (transparent) to 1 (opaque)
-         */
-        alpha: number;
-    })
-    {
-        this.value = config.alpha;
+  public order = BehaviorOrder.Normal;
+  private value: number;
+  constructor(config: {
+    /**
+     * Transparency of the particles from 0 (transparent) to 1 (opaque)
+     */
+    alpha: number;
+  }) {
+    this.value = config.alpha;
+  }
+
+  initParticles(first: Particle): void {
+    let next = first;
+
+    while (next) {
+      next.alpha = this.value;
+      next = next.next;
     }
-
-    initParticles(first: Particle): void
-    {
-        let next = first;
-
-        while (next)
-        {
-            next.alpha = this.value;
-            next = next.next;
-        }
-    }
+  }
 }

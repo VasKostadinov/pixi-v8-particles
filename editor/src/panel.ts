@@ -3,18 +3,9 @@ import { behaviorCard } from "./behaviorCard";
 import { openAddBehaviorMenu } from "./addBehaviorMenu";
 import type { EditorCtx } from "./ctx";
 import { clear, el, on } from "./dom";
-import {
-  booleanControl,
-  makeRow,
-  numberControl,
-  pointControl,
-} from "./controls";
+import { booleanControl, makeRow, numberControl, pointControl } from "./controls";
 
-export function renderPanel(
-  scroll: HTMLElement,
-  config: EmitterConfigV3,
-  ctx: EditorCtx,
-): void {
+export function renderPanel(scroll: HTMLElement, config: EmitterConfigV3, ctx: EditorCtx): void {
   clear(scroll);
 
   // --- Emitter section

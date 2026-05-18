@@ -4,11 +4,7 @@ import { defaultConfig } from "./defaultConfig";
 import { copyToClipboard, downloadJson, exportConfig } from "./exportJson";
 import { on } from "./dom";
 
-export function wireTopbar(
-  topbar: HTMLElement,
-  config: EmitterConfigV3,
-  ctx: EditorCtx,
-): void {
+export function wireTopbar(topbar: HTMLElement, config: EmitterConfigV3, ctx: EditorCtx): void {
   const button = (action: string) =>
     topbar.querySelector<HTMLButtonElement>(`button[data-action="${action}"]`);
 

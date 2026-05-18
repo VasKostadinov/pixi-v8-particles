@@ -1,12 +1,29 @@
-import { Texture } from 'pixi.js';
-import type { PointData as IPointData, BLEND_MODES } from 'pixi.js';
-import { PropertyNode, ValueStep } from './PropertyNode';
+import { Texture } from "pixi.js";
+import type { PointData as IPointData, BLEND_MODES } from "pixi.js";
+import { PropertyNode, ValueStep } from "./PropertyNode";
 
 const V8_BLEND_MODES = new Set<string>([
-    'normal', 'add', 'multiply', 'screen', 'darken', 'lighten',
-    'erase', 'subtract', 'color', 'color-burn', 'color-dodge',
-    'difference', 'exclusion', 'hard-light', 'hue', 'luminosity',
-    'min', 'overlay', 'saturation', 'soft-light', 'no-blend',
+  "normal",
+  "add",
+  "multiply",
+  "screen",
+  "darken",
+  "lighten",
+  "erase",
+  "subtract",
+  "color",
+  "color-burn",
+  "color-dodge",
+  "difference",
+  "exclusion",
+  "hard-light",
+  "hue",
+  "luminosity",
+  "min",
+  "overlay",
+  "saturation",
+  "soft-light",
+  "no-blend",
 ]);
 
 /**
@@ -16,22 +33,22 @@ const V8_BLEND_MODES = new Set<string>([
  */
 // eslint-disable-next-line prefer-const
 export let GetTextureFromString: (d: string) => Texture = (d) =>
-    (d && d.trim() ? Texture.from(d) : Texture.WHITE);
+  d && d.trim() ? Texture.from(d) : Texture.WHITE;
 
 /**
  * A color value, split apart for interpolation.
  */
 export interface Color {
-    r: number;
-    g: number;
-    b: number;
-    a?: number;
+  r: number;
+  g: number;
+  b: number;
+  a?: number;
 }
 
 export interface EaseSegment {
-    cp: number;
-    s: number;
-    e: number;
+  cp: number;
+  s: number;
+  e: number;
 }
 
 /**
@@ -52,17 +69,16 @@ export const DEG_TO_RADS = Math.PI / 180;
  * @param angle The angle to rotate by in radians
  * @param p The point to rotate around 0,0.
  */
-export function rotatePoint(angle: number, p: IPointData): void
-{
-    if (!angle) return;
+export function rotatePoint(angle: number, p: IPointData): void {
+  if (!angle) return;
 
-    const s = Math.sin(angle);
-    const c = Math.cos(angle);
-    const xnew = (p.x * c) - (p.y * s);
-    const ynew = (p.x * s) + (p.y * c);
+  const s = Math.sin(angle);
+  const c = Math.cos(angle);
+  const xnew = p.x * c - p.y * s;
+  const ynew = p.x * s + p.y * c;
 
-    p.x = xnew;
-    p.y = ynew;
+  p.x = xnew;
+  p.y = ynew;
 }
 
 /**
@@ -72,9 +88,8 @@ export function rotatePoint(angle: number, p: IPointData): void
  * @param b The blue value of the color
  * @return The color in the form of 0xRRGGBB
  */
-export function combineRGBComponents(r: number, g: number, b: number/* , a*/): number
-{
-    return /* a << 24 |*/ (r << 16) | (g << 8) | b;
+export function combineRGBComponents(r: number, g: number, b: number /* , a*/): number {
+  return /* a << 24 |*/ (r << 16) | (g << 8) | b;
 }
 
 /**
@@ -82,28 +97,25 @@ export function combineRGBComponents(r: number, g: number, b: number/* , a*/): n
  * @param point The point to measure length
  * @return The length of this point.
  */
-export function length(point: IPointData): number
-{
-    return Math.sqrt((point.x * point.x) + (point.y * point.y));
+export function length(point: IPointData): number {
+  return Math.sqrt(point.x * point.x + point.y * point.y);
 }
 
 /**
  * Reduces the point to a length of 1.
  * @param point The point to normalize
  */
-export function normalize(point: IPointData): void
-{
-    let oneOverLen = 1 / length(point);
+export function normalize(point: IPointData): void {
+  let oneOverLen = 1 / length(point);
 
-    // if NaN or Infinity (length of 0), change to 0 so the resulting point is 0
-    // eslint-disable-next-line no-self-compare
-    if (oneOverLen !== oneOverLen || oneOverLen === Infinity)
-    {
-        oneOverLen = 0;
-    }
+  // if NaN or Infinity (length of 0), change to 0 so the resulting point is 0
+  // eslint-disable-next-line no-self-compare
+  if (oneOverLen !== oneOverLen || oneOverLen === Infinity) {
+    oneOverLen = 0;
+  }
 
-    point.x *= oneOverLen;
-    point.y *= oneOverLen;
+  point.x *= oneOverLen;
+  point.y *= oneOverLen;
 }
 
 /**
@@ -111,10 +123,9 @@ export function normalize(point: IPointData): void
  * @param point The point to scaleBy
  * @param value The value to scale by.
  */
-export function scaleBy(point: IPointData, value: number): void
-{
-    point.x *= value;
-    point.y *= value;
+export function scaleBy(point: IPointData, value: number): void {
+  point.x *= value;
+  point.y *= value;
 }
 
 /**
@@ -125,36 +136,29 @@ export function scaleBy(point: IPointData, value: number): void
  * @param output An object to put the output in. If omitted, a new object is created.
  * @return The object with r, g, and b properties, possibly with an a property.
  */
-export function hexToRGB(color: string, output?: Color): Color
-{
-    if (!output)
-    {
-        output = {} as Color;
-    }
-    if (color.charAt(0) === '#')
-    {
-        color = color.substr(1);
-    }
-    else if (color.indexOf('0x') === 0)
-    {
-        color = color.substr(2);
-    }
-    let alpha;
+export function hexToRGB(color: string, output?: Color): Color {
+  if (!output) {
+    output = {} as Color;
+  }
+  if (color.charAt(0) === "#") {
+    color = color.substr(1);
+  } else if (color.indexOf("0x") === 0) {
+    color = color.substr(2);
+  }
+  let alpha;
 
-    if (color.length === 8)
-    {
-        alpha = color.substr(0, 2);
-        color = color.substr(2);
-    }
-    output.r = parseInt(color.substr(0, 2), 16);// Red
-    output.g = parseInt(color.substr(2, 2), 16);// Green
-    output.b = parseInt(color.substr(4, 2), 16);// Blue
-    if (alpha)
-    {
-        output.a = parseInt(alpha, 16);
-    }
+  if (color.length === 8) {
+    alpha = color.substr(0, 2);
+    color = color.substr(2);
+  }
+  output.r = parseInt(color.substr(0, 2), 16); // Red
+  output.g = parseInt(color.substr(2, 2), 16); // Green
+  output.b = parseInt(color.substr(4, 2), 16); // Blue
+  if (alpha) {
+    output.a = parseInt(alpha, 16);
+  }
 
-    return output;
+  return output;
 }
 
 /**
@@ -165,39 +169,36 @@ export function hexToRGB(color: string, output?: Color): Color
  * @return A function that calculates the percentage of change at
  *                    a given point in time (0-1 inclusive).
  */
-export function generateEase(segments: EaseSegment[]): SimpleEase
-{
-    const qty = segments.length;
-    const oneOverQty = 1 / qty;
-    /*
-        * Calculates the percentage of change at a given point in time (0-1 inclusive).
-        * @param {Number} time The time of the ease, 0-1 inclusive.
-        * @return {Number} The percentage of the change, 0-1 inclusive (unless your
-        *                  ease goes outside those bounds).
-        */
+export function generateEase(segments: EaseSegment[]): SimpleEase {
+  const qty = segments.length;
+  const oneOverQty = 1 / qty;
+  /*
+   * Calculates the percentage of change at a given point in time (0-1 inclusive).
+   * @param {Number} time The time of the ease, 0-1 inclusive.
+   * @return {Number} The percentage of the change, 0-1 inclusive (unless your
+   *                  ease goes outside those bounds).
+   */
 
-    // eslint-disable-next-line func-names
-    return function (time: number): number
-    {
-        const i = (qty * time) | 0;// do a quick floor operation
+  // eslint-disable-next-line func-names
+  return function (time: number): number {
+    const i = (qty * time) | 0; // do a quick floor operation
 
-        const t = (time - (i * oneOverQty)) * qty;
-        const s = segments[i] || segments[qty - 1];
+    const t = (time - i * oneOverQty) * qty;
+    const s = segments[i] || segments[qty - 1];
 
-        return (s.s + (t * ((2 * (1 - t) * (s.cp - s.s)) + (t * (s.e - s.s)))));
-    };
+    return s.s + t * (2 * (1 - t) * (s.cp - s.s) + t * (s.e - s.s));
+  };
 }
 
 /**
  * Gets a blend mode, ensuring that it is valid.
  * Accepts both v8 names ("multiply", "hard-light") and legacy v6 enum names ("MULTIPLY", "HARD_LIGHT").
  */
-export function getBlendMode(name: string): BLEND_MODES
-{
-    if (!name) return 'normal';
-    const normalized = name.toLowerCase().replace(/[_ ]/g, '-');
+export function getBlendMode(name: string): BLEND_MODES {
+  if (!name) return "normal";
+  const normalized = name.toLowerCase().replace(/[_ ]/g, "-");
 
-    return (V8_BLEND_MODES.has(normalized) ? normalized : 'normal') as BLEND_MODES;
+  return (V8_BLEND_MODES.has(normalized) ? normalized : "normal") as BLEND_MODES;
 }
 
 /**
@@ -208,45 +209,44 @@ export function getBlendMode(name: string): BLEND_MODES
  * @param [numSteps=10] The number of steps to use.
  * @return The blend mode as specified in the PIXI.blendModes enumeration.
  */
-export function createSteppedGradient(list: ValueStep<string>[], numSteps = 10): PropertyNode<Color>
-{
-    if (typeof numSteps !== 'number' || numSteps <= 0)
-    {
-        numSteps = 10;
+export function createSteppedGradient(
+  list: ValueStep<string>[],
+  numSteps = 10,
+): PropertyNode<Color> {
+  if (typeof numSteps !== "number" || numSteps <= 0) {
+    numSteps = 10;
+  }
+  const first = new PropertyNode<Color>(hexToRGB(list[0].value), list[0].time);
+
+  first.isStepped = true;
+  let currentNode = first;
+  let current = list[0];
+  let nextIndex = 1;
+  let next = list[nextIndex];
+
+  for (let i = 1; i < numSteps; ++i) {
+    let lerp = i / numSteps;
+    // ensure we are on the right segment, if multiple
+
+    while (lerp > next.time) {
+      current = next;
+      next = list[++nextIndex];
     }
-    const first = new PropertyNode<Color>(hexToRGB(list[0].value), list[0].time);
+    // convert the lerp value to the segment range
+    lerp = (lerp - current.time) / (next.time - current.time);
+    const curVal = hexToRGB(current.value);
+    const nextVal = hexToRGB(next.value);
+    const output: Color = {
+      r: (nextVal.r - curVal.r) * lerp + curVal.r,
+      g: (nextVal.g - curVal.g) * lerp + curVal.g,
+      b: (nextVal.b - curVal.b) * lerp + curVal.b,
+    };
 
-    first.isStepped = true;
-    let currentNode = first;
-    let current = list[0];
-    let nextIndex = 1;
-    let next = list[nextIndex];
+    currentNode.next = new PropertyNode(output, i / numSteps);
+    currentNode = currentNode.next;
+  }
 
-    for (let i = 1; i < numSteps; ++i)
-    {
-        let lerp = i / numSteps;
-        // ensure we are on the right segment, if multiple
-
-        while (lerp > next.time)
-        {
-            current = next;
-            next = list[++nextIndex];
-        }
-        // convert the lerp value to the segment range
-        lerp = (lerp - current.time) / (next.time - current.time);
-        const curVal = hexToRGB(current.value);
-        const nextVal = hexToRGB(next.value);
-        const output: Color = {
-            r: ((nextVal.r - curVal.r) * lerp) + curVal.r,
-            g: ((nextVal.g - curVal.g) * lerp) + curVal.g,
-            b: ((nextVal.b - curVal.b) * lerp) + curVal.b,
-        };
-
-        currentNode.next = new PropertyNode(output, i / numSteps);
-        currentNode = currentNode.next;
-    }
-
-    // we don't need to have a PropertyNode for time of 1, because in a stepped version at that point
-    // the particle has died of old age
-    return first;
+  // we don't need to have a PropertyNode for time of 1, because in a stepped version at that point
+  // the particle has died of old age
+  return first;
 }

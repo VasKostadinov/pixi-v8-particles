@@ -1,8 +1,5 @@
 import type { IEmitterBehaviorClass } from "../../src/behaviors/Behaviors";
-import type {
-  BehaviorEditorConfig,
-  Property,
-} from "../../src/behaviors/editor/Types";
+import type { BehaviorEditorConfig, Property } from "../../src/behaviors/editor/Types";
 
 import { AccelerationBehavior } from "../../src/behaviors/AccelerationMovement";
 import { AlphaBehavior, StaticAlphaBehavior } from "../../src/behaviors/Alpha";
@@ -25,10 +22,7 @@ import {
 import { ScaleBehavior, StaticScaleBehavior } from "../../src/behaviors/Scale";
 import { ShapeSpawnBehavior } from "../../src/behaviors/ShapeSpawn";
 import { SingleTextureBehavior } from "../../src/behaviors/SingleTexture";
-import {
-  SpeedBehavior,
-  StaticSpeedBehavior,
-} from "../../src/behaviors/SpeedMovement";
+import { SpeedBehavior, StaticSpeedBehavior } from "../../src/behaviors/SpeedMovement";
 
 export interface BehaviorMeta {
   type: string;

@@ -89,9 +89,7 @@ export function behaviorCard(
         renderProperty(body, entry.config as Record<string, unknown>, prop, ctx);
       }
     } else {
-      body.appendChild(
-        el("div", { class: "label" }, [`(unknown type: ${entry.type})`]),
-      );
+      body.appendChild(el("div", { class: "label" }, [`(unknown type: ${entry.type})`]));
     }
   }
 
@@ -99,12 +97,7 @@ export function behaviorCard(
   return card;
 }
 
-function wireDrag(
-  card: HTMLElement,
-  handle: HTMLElement,
-  index: number,
-  dragCtx: CardDragContext,
-) {
+function wireDrag(card: HTMLElement, handle: HTMLElement, index: number, dragCtx: CardDragContext) {
   on(handle, "dragstart", (ev) => {
     if (!ev.dataTransfer) return;
     ev.dataTransfer.setData("text/plain", String(index));
@@ -118,7 +111,7 @@ function wireDrag(
     ev.preventDefault();
     if (ev.dataTransfer) ev.dataTransfer.dropEffect = "move";
     const rect = card.getBoundingClientRect();
-    const halfway = (ev.clientY - rect.top) < rect.height / 2;
+    const halfway = ev.clientY - rect.top < rect.height / 2;
     card.classList.toggle("drag-over-top", halfway);
     card.classList.toggle("drag-over-bottom", !halfway);
   });
@@ -131,7 +124,7 @@ function wireDrag(
     const from = parseInt(ev.dataTransfer?.getData("text/plain") ?? "", 10);
     if (!Number.isFinite(from) || from === index) return;
     const rect = card.getBoundingClientRect();
-    const dropAbove = (ev.clientY - rect.top) < rect.height / 2;
+    const dropAbove = ev.clientY - rect.top < rect.height / 2;
     let to = dropAbove ? index : index + 1;
     if (from < to) to -= 1;
     if (from !== to) dragCtx.onReorder(from, to);

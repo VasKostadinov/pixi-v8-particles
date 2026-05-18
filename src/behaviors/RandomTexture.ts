@@ -1,9 +1,9 @@
 // @ts-nocheck — vendored from pixijs-userland/particle-emitter; loose typing matches upstream.
-import { Texture } from 'pixi.js';
-import { Particle } from '../Particle';
-import { IEmitterBehavior, BehaviorOrder } from './Behaviors';
-import { GetTextureFromString } from '../ParticleUtils';
-import { BehaviorEditorConfig } from './editor/Types';
+import { Texture } from "pixi.js";
+import { Particle } from "../Particle";
+import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
+import { GetTextureFromString } from "../ParticleUtils";
+import { BehaviorEditorConfig } from "./editor/Types";
 
 /**
  * A Texture behavior that assigns a random texture to each particle from its list.
@@ -19,34 +19,32 @@ import { BehaviorEditorConfig } from './editor/Types';
  * }
  * ```
  */
-export class RandomTextureBehavior implements IEmitterBehavior
-{
-    public static type = 'textureRandom';
-    public static editorConfig: BehaviorEditorConfig = null;
+export class RandomTextureBehavior implements IEmitterBehavior {
+  public static type = "textureRandom";
+  public static editorConfig: BehaviorEditorConfig = null;
 
-    public order = BehaviorOrder.Normal;
-    private textures: Texture[];
-    constructor(config: {
-        /**
-         * Images to use for each particle, randomly chosen from the list.
-         */
-        textures: (Texture|string)[];
-    })
-    {
-        this.textures = config.textures.map((tex) => (typeof tex === 'string' ? GetTextureFromString(tex) : tex));
+  public order = BehaviorOrder.Normal;
+  private textures: Texture[];
+  constructor(config: {
+    /**
+     * Images to use for each particle, randomly chosen from the list.
+     */
+    textures: (Texture | string)[];
+  }) {
+    this.textures = config.textures.map((tex) =>
+      typeof tex === "string" ? GetTextureFromString(tex) : tex,
+    );
+  }
+
+  initParticles(first: Particle): void {
+    let next = first;
+
+    while (next) {
+      const index = Math.floor(Math.random() * this.textures.length);
+
+      next.texture = this.textures[index];
+
+      next = next.next;
     }
-
-    initParticles(first: Particle): void
-    {
-        let next = first;
-
-        while (next)
-        {
-            const index = Math.floor(Math.random() * this.textures.length);
-
-            next.texture = this.textures[index];
-
-            next = next.next;
-        }
-    }
+  }
 }

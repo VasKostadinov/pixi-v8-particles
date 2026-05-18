@@ -1,9 +1,9 @@
 // @ts-nocheck — vendored from pixijs-userland/particle-emitter; loose typing matches upstream.
-import { Texture } from 'pixi.js';
-import { Particle } from '../Particle';
-import { IEmitterBehavior, BehaviorOrder } from './Behaviors';
-import { GetTextureFromString } from '../ParticleUtils';
-import { BehaviorEditorConfig } from './editor/Types';
+import { Texture } from "pixi.js";
+import { Particle } from "../Particle";
+import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
+import { GetTextureFromString } from "../ParticleUtils";
+import { BehaviorEditorConfig } from "./editor/Types";
 
 /**
  * A Textuure behavior that assigns a single texture to each particle.
@@ -19,32 +19,29 @@ import { BehaviorEditorConfig } from './editor/Types';
  * }
  * ```
  */
-export class SingleTextureBehavior implements IEmitterBehavior
-{
-    public static type = 'textureSingle';
-    public static editorConfig: BehaviorEditorConfig = null;
+export class SingleTextureBehavior implements IEmitterBehavior {
+  public static type = "textureSingle";
+  public static editorConfig: BehaviorEditorConfig = null;
 
-    public order = BehaviorOrder.Normal;
-    private texture: Texture;
-    constructor(config: {
-        /**
-         * Image to use for each particle.
-         */
-        texture: Texture|string;
-    })
-    {
-        this.texture = typeof config.texture === 'string' ? GetTextureFromString(config.texture) : config.texture;
+  public order = BehaviorOrder.Normal;
+  private texture: Texture;
+  constructor(config: {
+    /**
+     * Image to use for each particle.
+     */
+    texture: Texture | string;
+  }) {
+    this.texture =
+      typeof config.texture === "string" ? GetTextureFromString(config.texture) : config.texture;
+  }
+
+  initParticles(first: Particle): void {
+    let next = first;
+
+    while (next) {
+      next.texture = this.texture;
+
+      next = next.next;
     }
-
-    initParticles(first: Particle): void
-    {
-        let next = first;
-
-        while (next)
-        {
-            next.texture = this.texture;
-
-            next = next.next;
-        }
-    }
+  }
 }

@@ -1,7 +1,4 @@
-import type {
-  ColorListProperty,
-  NumberListProperty,
-} from "../../src/behaviors/editor/Types";
+import type { ColorListProperty, NumberListProperty } from "../../src/behaviors/editor/Types";
 import type { EditorCtx } from "./ctx";
 import { el, on } from "./dom";
 import { booleanEl } from "./controls";
@@ -13,11 +10,7 @@ interface ValueListShape<T> {
   isStepped?: boolean;
 }
 
-function ensureList<T>(
-  target: Target,
-  key: string,
-  defaultValue: T,
-): ValueListShape<T> {
+function ensureList<T>(target: Target, key: string, defaultValue: T): ValueListShape<T> {
   let list = target[key] as ValueListShape<T> | undefined;
   if (!list || !Array.isArray(list.list)) {
     list = {
@@ -85,11 +78,17 @@ export function colorListControl(
     ctx.notifyValue();
   });
 
-  wrap.appendChild(makeFooter(list, () => {
-    list.list.push({ time: 1, value: list.list[list.list.length - 1]?.value ?? "#ffffff" });
-    rebuildMarkers();
-    ctx.notifyValue();
-  }, ctx));
+  wrap.appendChild(
+    makeFooter(
+      list,
+      () => {
+        list.list.push({ time: 1, value: list.list[list.list.length - 1]?.value ?? "#ffffff" });
+        rebuildMarkers();
+        ctx.notifyValue();
+      },
+      ctx,
+    ),
+  );
 
   return wrap;
 }
@@ -238,7 +237,12 @@ export function numberListControl(
   wrap.appendChild(stopsWrap);
 
   const minV = p.min ?? 0;
-  const maxV = p.max ?? guessMax(list.list.map((s) => s.value), p.default);
+  const maxV =
+    p.max ??
+    guessMax(
+      list.list.map((s) => s.value),
+      p.default,
+    );
 
   const refresh = () => {
     list.list.sort((a, b) => a.time - b.time);
@@ -261,10 +265,14 @@ export function numberListControl(
         value: String(stop.value),
       });
       vInput.style.width = "100%";
-      const del = el("button", {
-        class: "btn-mini danger",
-        title: "remove stop",
-      }, ["×"]);
+      const del = el(
+        "button",
+        {
+          class: "btn-mini danger",
+          title: "remove stop",
+        },
+        ["×"],
+      );
       del.disabled = list.list.length <= 1;
 
       on(tSlider, "input", () => {
@@ -297,15 +305,21 @@ export function numberListControl(
   void minV;
   void maxV;
 
-  wrap.appendChild(makeFooter(list, () => {
-    const last = list.list[list.list.length - 1];
-    list.list.push({
-      time: Math.min(1, (last?.time ?? 0) + 0.1),
-      value: last?.value ?? p.default,
-    });
-    refresh();
-    ctx.notifyValue();
-  }, ctx));
+  wrap.appendChild(
+    makeFooter(
+      list,
+      () => {
+        const last = list.list[list.list.length - 1];
+        list.list.push({
+          time: Math.min(1, (last?.time ?? 0) + 0.1),
+          value: last?.value ?? p.default,
+        });
+        refresh();
+        ctx.notifyValue();
+      },
+      ctx,
+    ),
+  );
 
   return wrap;
 }
@@ -317,11 +331,7 @@ function guessMax(values: number[], fallback: number): number {
 
 /* ---------- shared header / footer ---------- */
 
-function makeHeader(
-  title: string,
-  list: ValueListShape<unknown>,
-  ctx: EditorCtx,
-): HTMLElement {
+function makeHeader(title: string, list: ValueListShape<unknown>, ctx: EditorCtx): HTMLElement {
   const head = el("div", { class: "vlist-title" });
   head.appendChild(el("span", {}, [title]));
   const meta = el("div", { class: "meta" });

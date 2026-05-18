@@ -41,7 +41,11 @@ For the v8 fast path, pass a `ParticleContainer` parent and the third arg `FastP
 import { Emitter, FastParticle } from "pixi-v8-particles";
 import { ParticleContainer } from "pixi.js";
 
-const parent = new ParticleContainer({ dynamicProperties: { /* ... */ } });
+const parent = new ParticleContainer({
+  dynamicProperties: {
+    /* ... */
+  },
+});
 const emitter = new Emitter(parent, config, FastParticle);
 ```
 
