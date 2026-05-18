@@ -1,14 +1,14 @@
+import { Application } from "pixi.js";
 import "pixi.js/advanced-blend-modes";
 import "../../src";
 import "../../src/behaviors/editor";
-import { Application } from "pixi.js";
 import { PreviewStage } from "./PreviewStage";
+import type { EditorCtx } from "./ctx";
 import { defaultConfig } from "./defaultConfig";
 import { renderPanel } from "./panel";
 import { wireSplitter } from "./splitter";
-import { wireTopbar } from "./topbar";
 import { createToast } from "./toast";
-import type { EditorCtx } from "./ctx";
+import { wireTopbar } from "./topbar";
 
 async function boot(): Promise<void> {
   const previewEl = document.getElementById("preview-canvas");
@@ -94,7 +94,9 @@ async function boot(): Promise<void> {
     notifyValue: () => stage.applyConfig(config),
     notifyStructural: () => {
       stage.applyConfig(config);
+      const prevScroll = scrollEl.scrollTop;
       renderPanel(scrollEl, config, ctx);
+      scrollEl.scrollTop = prevScroll;
     },
     toast,
   };
