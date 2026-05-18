@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pixi-v8-particles · editor</title>
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header id="topbar">
+        <div class="brand">pixi-v8-particles · editor</div>
+        <div class="actions">
+          <button data-action="reset" class="ghost">Reset</button>
+          <button data-action="copy" class="primary">Copy JSON</button>
+          <button data-action="download">Download</button>
+        </div>
+      </header>
+      <main id="workspace">
+        <section id="preview">
+          <div id="preview-canvas"></div>
+          <div id="preview-hud">
+            <span id="fps">—</span>
+            <span class="dim">·</span>
+            <span id="particle-count">0 particles</span>
+          </div>
+        </section>
+        <div id="splitter" title="Drag to resize"></div>
+        <aside id="panel">
+          <div id="panel-scroll"></div>
+        </aside>
+      </main>
+      <div id="toast"></div>
+    </div>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
