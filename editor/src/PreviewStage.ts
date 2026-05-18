@@ -1,4 +1,10 @@
-import { Application, Container, Texture, type Ticker } from "pixi.js";
+import {
+  Application,
+  Container,
+  ParticleContainer,
+  Texture,
+  type Ticker,
+} from "pixi.js";
 import { Emitter } from "../../src/Emitter";
 import type { EmitterConfigV3 } from "../../src/EmitterConfig";
 
@@ -7,14 +13,14 @@ export class PreviewStage {
   private emitter: Emitter | null = null;
 
   constructor(private app: Application) {
-    this.parent = new Container();
+    this.parent = new ParticleContainer();
     app.stage.addChild(this.parent);
-    this.layout();
+    this.relayout();
     app.ticker.add((time: Ticker) => this.update(time.deltaMS * 0.001));
-    window.addEventListener("resize", () => this.layout());
+    window.addEventListener("resize", () => this.relayout());
   }
 
-  private layout() {
+  relayout() {
     this.parent.x = this.app.renderer.width * 0.5;
     this.parent.y = this.app.renderer.height * 0.5;
   }

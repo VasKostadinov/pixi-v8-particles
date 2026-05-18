@@ -1,15 +1,18 @@
 import type { EmitterConfigV3 } from "../../src/EmitterConfig";
 
-// A warm-to-cool ember/spark burst — additive blend, fades in then out,
-// shrinks over life, randomly aimed from a tiny ring. Looks like a sparkler.
+// A dense plasma swirl — particles burst outward from a tiny ring along a
+// sine-wave path, decelerating as they cycle white → cyan → magenta → gold →
+// deep violet. Additive blend lets overlapping particles bloom into colored
+// plasma. Scale values look large because Texture.WHITE is 1×1 — the rendered
+// size is scale * 1px, so you need double-digit values to be visible.
 export function defaultConfig(): EmitterConfigV3 {
   return {
-    lifetime: { min: 0.6, max: 1.4 },
-    frequency: 0.004,
+    lifetime: { min: 1.2, max: 2.2 },
+    frequency: 0.002,
     particlesPerWave: 1,
     spawnChance: 1,
     emitterLifetime: -1,
-    maxParticles: 500,
+    maxParticles: 1200,
     addAtBack: false,
     pos: { x: 0, y: 0 },
     emit: true,
@@ -21,7 +24,7 @@ export function defaultConfig(): EmitterConfigV3 {
           alpha: {
             list: [
               { time: 0, value: 0 },
-              { time: 0.15, value: 1 },
+              { time: 0.12, value: 0.9 },
               { time: 1, value: 0 },
             ],
           },
@@ -32,11 +35,12 @@ export function defaultConfig(): EmitterConfigV3 {
         config: {
           scale: {
             list: [
-              { time: 0, value: 0.9 },
-              { time: 1, value: 0.1 },
+              { time: 0, value: 3 },
+              { time: 0.5, value: 10 },
+              { time: 1, value: 8 },
             ],
           },
-          minMult: 0.7,
+          minMult: 0.6,
         },
       },
       {
@@ -44,24 +48,26 @@ export function defaultConfig(): EmitterConfigV3 {
         config: {
           color: {
             list: [
-              { time: 0, value: "#fff2b3" },
-              { time: 0.3, value: "#ffae3c" },
-              { time: 0.7, value: "#ff3d6b" },
-              { time: 1, value: "#3c1a78" },
+              { time: 0, value: "#ffffff" },
+              { time: 0.22, value: "#5cf0ff" },
+              { time: 0.5, value: "#ff4cf2" },
+              { time: 0.78, value: "#ffb347" },
+              { time: 1, value: "#2a0a3d" },
             ],
           },
         },
       },
       {
-        type: "moveSpeed",
+        type: "movePath",
         config: {
+          path: "sin(x / 40) * 55",
           speed: {
             list: [
-              { time: 0, value: 180 },
+              { time: 0, value: 260 },
               { time: 1, value: 30 },
             ],
           },
-          minMult: 0.6,
+          minMult: 0.7,
         },
       },
       {
@@ -77,7 +83,7 @@ export function defaultConfig(): EmitterConfigV3 {
         type: "spawnShape",
         config: {
           type: "torus",
-          data: { x: 0, y: 0, radius: 6, innerRadius: 0, rotation: false },
+          data: { x: 0, y: 0, radius: 12, innerRadius: 0, rotation: false },
         },
       },
     ],

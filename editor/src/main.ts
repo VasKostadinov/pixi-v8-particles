@@ -18,6 +18,9 @@ async function boot(): Promise<void> {
   const toastEl = document.getElementById("toast");
   const hudCount = document.getElementById("particle-count");
   const hudFps = document.getElementById("fps");
+  const bgPickerEl = document.getElementById("bg-picker");
+  const bgPickerInput =
+    bgPickerEl?.querySelector<HTMLInputElement>('input[type="color"]') ?? null;
   if (
     !(previewEl instanceof HTMLElement) ||
     !(scrollEl instanceof HTMLElement) ||
@@ -26,22 +29,47 @@ async function boot(): Promise<void> {
     !(topbarEl instanceof HTMLElement) ||
     !(toastEl instanceof HTMLElement) ||
     !(hudCount instanceof HTMLElement) ||
-    !(hudFps instanceof HTMLElement)
+    !(hudFps instanceof HTMLElement) ||
+    !(bgPickerEl instanceof HTMLElement) ||
+    !(bgPickerInput instanceof HTMLInputElement)
   ) {
     throw new Error("Editor DOM scaffold missing");
   }
 
+  const initialBg = loadStoredBg() ?? "#0a0a0c";
   const app = new Application();
   await app.init({
-    background: 0x0a0a0c,
+    background: hexToNumber(initialBg),
     resizeTo: previewEl,
     antialias: true,
   });
   previewEl.appendChild(app.canvas);
 
+  const applyBg = (hex: string) => {
+    app.renderer.background.color = hexToNumber(hex);
+    bgPickerEl.style.setProperty("--c", hex);
+    try {
+      localStorage.setItem("preview-bg", hex);
+    } catch {
+      // localStorage may be blocked (private mode, quota) — non-fatal.
+    }
+  };
+  bgPickerInput.value = initialBg;
+  bgPickerEl.style.setProperty("--c", initialBg);
+  bgPickerInput.addEventListener("input", () => applyBg(bgPickerInput.value));
+
   const stage = new PreviewStage(app);
   const config = defaultConfig();
   stage.applyConfig(config);
+
+  // Pixi's resizeTo only listens to window 'resize', so dragging the splitter
+  // changes the preview's clientWidth without Pixi noticing — the CSS rule on
+  // the canvas would then stretch its pixel buffer. Observe the preview itself
+  // and trigger an immediate resize + re-center.
+  new ResizeObserver(() => {
+    app.resize();
+    stage.relayout();
+  }).observe(previewEl);
 
   const toast = createToast(toastEl);
   const ctx: EditorCtx = {
@@ -74,3 +102,16 @@ async function boot(): Promise<void> {
 }
 
 void boot();
+
+function loadStoredBg(): string | null {
+  try {
+    const v = localStorage.getItem("preview-bg");
+    return v && /^#[0-9a-fA-F]{6}$/.test(v) ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+function hexToNumber(hex: string): number {
+  return parseInt(hex.slice(1), 16);
+}
