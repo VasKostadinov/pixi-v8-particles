@@ -1,26 +1,56 @@
 {
   "name": "pixi-v8-particles",
   "version": "0.0.0",
-  "private": true,
   "type": "module",
   "description": "Vendored pixijs particle-emitter ported for pixi.js v8, plus a standalone visual editor.",
+  "license": "MIT",
+  "author": "VasKostadinov <glavonanft@gmail.com>",
+  "homepage": "https://github.com/VasKostadinov/pixi-v8-particles#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VasKostadinov/pixi-v8-particles.git"
+  },
+  "bugs": {
+    "url": "https://github.com/VasKostadinov/pixi-v8-particles/issues"
+  },
+  "keywords": [
+    "pixi",
+    "pixi.js",
+    "pixi-v8",
+    "particles",
+    "particle-emitter",
+    "particle-system",
+    "vfx",
+    "webgl",
+    "webgpu"
+  ],
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./editor-config": "./src/behaviors/editor/index.ts"
+    ".": "./src/index.ts"
   },
+  "sideEffects": [
+    "./src/index.ts"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "src"
+  ],
   "scripts": {
     "dev": "vite --config editor/vite.config.ts",
     "build": "tsc -p editor/tsconfig.json && vite build --config editor/vite.config.ts",
     "preview": "vite preview --config editor/vite.config.ts",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "release": "np --no-tests"
   },
   "peerDependencies": {
     "pixi.js": "^8.0.0"
   },
   "devDependencies": {
+    "np": "^11.2.1",
     "pixi.js": "^8.8.1",
     "prettier": "3.8.3",
     "typescript": "~5.7.3",
