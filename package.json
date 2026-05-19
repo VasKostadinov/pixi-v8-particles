@@ -36,7 +36,10 @@
     "node": ">=18"
   },
   "files": [
-    "src"
+    "src",
+    "!src/behaviors/editor/index.ts",
+    "!src/behaviors/editor/behaviors",
+    "!src/behaviors/editor/shapes"
   ],
   "scripts": {
     "dev": "vite --config editor/vite.config.ts",
