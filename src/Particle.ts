@@ -30,15 +30,15 @@ export class Particle extends Sprite implements LinkedListChild {
   /**
    * Reference to the next particle in the list.
    */
-  public next: Particle;
+  public next: Particle | null;
 
   /**
    * Reference to the previous particle in the list.
    */
-  public prev: Particle;
+  public prev: Particle | null;
 
-  public prevChild: LinkedListChild;
-  public nextChild: LinkedListChild;
+  public prevChild: LinkedListChild | null;
+  public nextChild: LinkedListChild | null;
 
   /**
    * Static per-particle configuration for behaviors to use. Is not cleared when recycling.

@@ -1,8 +1,7 @@
-// @ts-nocheck — vendored from pixijs-userland/particle-emitter; loose typing matches upstream.
 /* eslint-disable no-lonely-if */
+import type { PointData as IPointData } from "pixi.js";
 import { EaseSegment, SimpleEase } from "./ParticleUtils";
 import { ValueList } from "./PropertyNode";
-import type { PointData as IPointData } from "pixi.js";
 
 /**
  * Full Emitter configuration for initializing an Emitter instance.
@@ -172,13 +171,13 @@ export function upgradeConfig(
     let minStart: number;
     let maxStart: number;
 
-    if ("start" in config.speed) {
-      minStart = config.speed.start * (config.speed.minimumSpeedMultiplier ?? 1);
-      maxStart = config.speed.start;
+    if ("start" in config.speed!) {
+      minStart = config.speed!.start * (config.speed!.minimumSpeedMultiplier ?? 1);
+      maxStart = config.speed!.start;
     } else {
       minStart =
-        config.speed.list[0].value * ((config as EmitterConfigV2).minimumSpeedMultiplier ?? 1);
-      maxStart = config.speed.list[0].value;
+        config.speed!.list[0].value * ((config as EmitterConfigV2).minimumSpeedMultiplier ?? 1);
+      maxStart = config.speed!.list[0].value;
     }
 
     out.behaviors.push({
@@ -197,22 +196,22 @@ export function upgradeConfig(
     let list: ValueList<number>;
     let mult: number;
 
-    if ("start" in config.speed) {
-      mult = config.speed.minimumSpeedMultiplier ?? 1;
-      if (config.speed.start === config.speed.end) {
+    if ("start" in config.speed!) {
+      mult = config.speed!.minimumSpeedMultiplier ?? 1;
+      if (config.speed!.start === config.speed!.end) {
         list = {
-          list: [{ time: 0, value: config.speed.start }],
+          list: [{ time: 0, value: config.speed!.start }],
         };
       } else {
         list = {
           list: [
-            { time: 0, value: config.speed.start },
-            { time: 1, value: config.speed.end },
+            { time: 0, value: config.speed!.start },
+            { time: 1, value: config.speed!.end },
           ],
         };
       }
     } else {
-      list = config.speed;
+      list = config.speed!;
       mult = (config as EmitterConfigV2).minimumSpeedMultiplier ?? 1;
     }
 
@@ -472,10 +471,10 @@ export function upgradeConfig(
       shape = {
         type: "torus",
         data: {
-          x: config.spawnCircle.x,
-          y: config.spawnCircle.y,
-          radius: config.spawnCircle.r,
-          innerRadius: config.spawnCircle.minR,
+          x: config.spawnCircle!.x,
+          y: config.spawnCircle!.y,
+          radius: config.spawnCircle!.r,
+          innerRadius: config.spawnCircle!.minR,
           affectRotation: true,
         },
       };
@@ -483,9 +482,9 @@ export function upgradeConfig(
       shape = {
         type: "torus",
         data: {
-          x: config.spawnCircle.x,
-          y: config.spawnCircle.y,
-          radius: config.spawnCircle.r,
+          x: config.spawnCircle!.x,
+          y: config.spawnCircle!.y,
+          radius: config.spawnCircle!.r,
           innerRadius: 0,
           affectRotation: false,
         },

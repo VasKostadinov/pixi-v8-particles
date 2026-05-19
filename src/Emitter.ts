@@ -1,4 +1,3 @@
-// @ts-nocheck — vendored from pixijs-userland/particle-emitter; loose typing matches upstream.
 import { Container, Point, Ticker } from "pixi.js";
 import { BehaviorOrder, IEmitterBehavior, IEmitterBehaviorClass } from "./behaviors/Behaviors";
 import { EmitterConfigV3 } from "./EmitterConfig";
@@ -8,10 +7,7 @@ import { generateEase, rotatePoint, SimpleEase } from "./ParticleUtils";
 
 type AnyParticle = Particle | FastParticle;
 type ParticleConstructor = new (emitter: Emitter) => AnyParticle;
-// get the shared ticker, only supports V5 and V6 with individual packages
-/**
- * @hidden
- */
+// Shared pixi.js v8 ticker used when autoUpdate is enabled.
 const ticker = Ticker.shared;
 
 /**
@@ -62,7 +58,7 @@ export class Emitter {
    * parameter of time as a value from 0-1, inclusive. Expected outputs are values
    * from 0-1, inclusive.
    */
-  public customEase: SimpleEase;
+  public customEase: SimpleEase | null;
   // properties for spawning particles
   /**
    * Time between particle spawns in seconds.
@@ -120,9 +116,9 @@ export class Emitter {
    */
   protected _posChanged: boolean;
   /**
-   * The container to add particles to.
+   * The container to add particles to. Null before construction completes and after destroy().
    */
-  protected _parent: Container;
+  protected _parent: Container | null;
   /**
    * If particles should be added at the back of the display list instead of the front.
    */
@@ -149,17 +145,17 @@ export class Emitter {
    * The particles that are active and on the display list. This is the first particle in a
    * linked list.
    */
-  protected _activeParticlesFirst: Particle;
+  protected _activeParticlesFirst: Particle | null;
   /**
    * The particles that are active and on the display list. This is the last particle in a
    * linked list.
    */
-  protected _activeParticlesLast: Particle;
+  protected _activeParticlesLast: Particle | null;
   /**
    * The particles that are not currently being used. This is the first particle in a
    * linked list.
    */
-  protected _poolFirst: Particle;
+  protected _poolFirst: Particle | null;
   /**
    * The original config object that this emitter was initialized with.
    */
@@ -178,7 +174,7 @@ export class Emitter {
    * A callback for when all particles have died out. This is set by
    * playOnceAndDestroy() or playOnce();
    */
-  protected _completeCallback: () => void;
+  protected _completeCallback: (() => void) | null;
   /**
    * v8 ticker callbacks now receive a Ticker, not a delta number.
    * We adapt it here so update() keeps its (delta: number) signature
@@ -288,7 +284,7 @@ export class Emitter {
   /**
    * The container to add particles to. Settings this will dump any active particles.
    */
-  public get parent(): Container {
+  public get parent(): Container | null {
     return this._parent;
   }
   public set parent(value: Container) {
@@ -304,9 +300,9 @@ export class Emitter {
       // ParticleContainer ignores order; "addAtBack" has no rendering effect there.
       (this._parent as any).addParticle(p);
     } else if (atBack) {
-      this._parent.addChildAt(p as any, 0);
+      this._parent!.addChildAt(p as any, 0);
     } else {
-      this._parent.addChild(p as any);
+      this._parent!.addChild(p as any);
     }
   }
 
@@ -366,7 +362,7 @@ export class Emitter {
     // set the emitter lifetime
     this.emitterLifetime = config.emitterLifetime || -1;
     // set the max particles
-    this.maxParticles = config.maxParticles > 0 ? config.maxParticles : 1000;
+    this.maxParticles = config.maxParticles && config.maxParticles > 0 ? config.maxParticles : 1000;
     // determine if we should add the particle at the back of the list or not
     this.addAtBack = !!config.addAtBack;
     // reset the emitter position and rotation variables
@@ -444,7 +440,7 @@ export class Emitter {
    */
   public fillPool(count: number): void {
     for (; count > 0; --count) {
-      const p = new this._particleClass(this);
+      const p = new this._particleClass(this) as Particle;
 
       p.next = this._poolFirst;
       this._poolFirst = p;
@@ -459,7 +455,7 @@ export class Emitter {
    */
   public recycle(particle: Particle, fromCleanup = false): void {
     for (let i = 0; i < this.recycleBehaviors.length; ++i) {
-      this.recycleBehaviors[i].recycleParticle(particle, !fromCleanup);
+      this.recycleBehaviors[i].recycleParticle!(particle, !fromCleanup);
     }
     if (particle.next) {
       particle.next.prev = particle.prev;
@@ -571,7 +567,7 @@ export class Emitter {
     this.autoUpdate = true;
     this.emit = true;
     this._destroyWhenComplete = true;
-    this._completeCallback = callback;
+    this._completeCallback = callback ?? null;
   }
 
   /**
@@ -580,7 +576,7 @@ export class Emitter {
    */
   public playOnce(callback?: () => void): void {
     this.emit = true;
-    this._completeCallback = callback;
+    this._completeCallback = callback ?? null;
   }
 
   /**
@@ -629,7 +625,7 @@ export class Emitter {
 
         // let each behavior run wild on the active particles
         for (let i = 0; i < this.updateBehaviors.length; ++i) {
-          if (this.updateBehaviors[i].updateParticle(particle, delta)) {
+          if (this.updateBehaviors[i].updateParticle!(particle, delta)) {
             this.recycle(particle);
             break;
           }
@@ -637,8 +633,8 @@ export class Emitter {
       }
     }
 
-    let prevX: number;
-    let prevY: number;
+    let prevX = 0;
+    let prevY = 0;
 
     // if the previous position is valid, store these for later interpolation
     if (this._prevPosIsValid) {
@@ -688,8 +684,8 @@ export class Emitter {
           emitPosY = curY;
         }
 
-        let waveFirst: Particle = null;
-        let waveLast: Particle = null;
+        let waveFirst: Particle | null = null;
+        let waveLast: Particle | null = null;
 
         // create enough particles to fill the wave
         for (
@@ -721,7 +717,7 @@ export class Emitter {
             this._poolFirst = this._poolFirst.next;
             p.next = null;
           } else {
-            p = new this._particleClass(this);
+            p = new this._particleClass(this) as Particle;
           }
 
           // initialize particle
@@ -730,7 +726,7 @@ export class Emitter {
           this._addToParent(p, this.addAtBack);
           // add particles to list of ones in this wave
           if (waveFirst) {
-            waveLast.next = p;
+            waveLast!.next = p;
             p.prev = waveLast;
             waveLast = p;
           } else {
@@ -757,7 +753,11 @@ export class Emitter {
             // if we hit our special key, interrupt behaviors to apply
             // emitter position/rotation
             if (behavior === PositionParticle) {
-              for (let particle = waveFirst, next; particle; particle = next) {
+              for (
+                let particle: Particle | null = waveFirst, next: Particle | null = null;
+                particle;
+                particle = next
+              ) {
                 // save next particle in case we recycle this one
                 next = particle.next;
                 // rotate the particle's position by the emitter's rotation
@@ -793,13 +793,17 @@ export class Emitter {
               behavior.initParticles(waveFirst);
             }
           }
-          for (let particle = waveFirst, next; particle; particle = next) {
+          for (
+            let particle: Particle | null = waveFirst, next: Particle | null = null;
+            particle;
+            particle = next
+          ) {
             // save next particle in case we recycle this one
             next = particle.next;
             // now update the particles by the time passed, so the particles are spread out properly
             for (let i = 0; i < this.updateBehaviors.length; ++i) {
               // we want a positive delta, because a negative delta messes things up
-              if (this.updateBehaviors[i].updateParticle(particle, -this._spawnTimer)) {
+              if (this.updateBehaviors[i].updateParticle!(particle, -this._spawnTimer)) {
                 // bail if the particle got reycled
                 this.recycle(particle);
                 break;
@@ -842,8 +846,8 @@ export class Emitter {
     const emitPosX = this.ownerPos.x + this.spawnPos.x;
     const emitPosY = this.ownerPos.y + this.spawnPos.y;
 
-    let waveFirst: Particle = null;
-    let waveLast: Particle = null;
+    let waveFirst: Particle | null = null;
+    let waveLast: Particle | null = null;
 
     // create enough particles to fill the wave
     for (
@@ -863,7 +867,7 @@ export class Emitter {
         this._poolFirst = this._poolFirst.next;
         p.next = null;
       } else {
-        p = new this._particleClass(this);
+        p = new this._particleClass(this) as Particle;
       }
 
       let lifetime: number;
@@ -879,7 +883,7 @@ export class Emitter {
       this._addToParent(p, this.addAtBack);
       // add particles to list of ones in this wave
       if (waveFirst) {
-        waveLast.next = p;
+        waveLast!.next = p;
         p.prev = waveLast;
         waveLast = p;
       } else {
@@ -906,7 +910,11 @@ export class Emitter {
         // if we hit our special key, interrupt behaviors to apply
         // emitter position/rotation
         if (behavior === PositionParticle) {
-          for (let particle = waveFirst, next; particle; particle = next) {
+          for (
+            let particle: Particle | null = waveFirst, next: Particle | null = null;
+            particle;
+            particle = next
+          ) {
             // save next particle in case we recycle this one
             next = particle.next;
             // rotate the particle's position by the emitter's rotation
@@ -964,13 +972,14 @@ export class Emitter {
       next = particle.next;
       particle.destroy();
     }
-    this._poolFirst =
-      this._parent =
-      this.spawnPos =
-      this.ownerPos =
-      this.customEase =
-      this._completeCallback =
-        null;
+    this._poolFirst = null;
+    this._parent = null;
+    this.customEase = null;
+    this._completeCallback = null;
+    // spawnPos/ownerPos are typed non-null for the live lifecycle; nulling here marks the
+    // emitter as destroyed and any post-destroy use is a bug regardless.
+    (this as unknown as { spawnPos: Point | null }).spawnPos = null;
+    (this as unknown as { ownerPos: Point | null }).ownerPos = null;
 
     this.initBehaviors.length = this.updateBehaviors.length = this.recycleBehaviors.length = 0;
   }

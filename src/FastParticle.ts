@@ -1,7 +1,5 @@
-// @ts-nocheck — bridges v8 Particle to the upstream Sprite-based API used by behaviors.
-import { Particle as PixiParticle, Texture } from "pixi.js";
+import { BLEND_MODES, Particle as PixiParticle, Texture } from "pixi.js";
 import type { Emitter } from "./Emitter";
-import type { LinkedListChild } from "./LinkedListContainer";
 
 /**
  * Per-particle backend that uses pixi.js v8 `Particle` (the lightweight,
@@ -21,7 +19,7 @@ import type { LinkedListChild } from "./LinkedListContainer";
  * - `anchor.x` / `anchor.y` proxy → `anchorX` / `anchorY`
  * - `visible` is tracked but ignored at render time (remove from container to hide)
  * - `blendMode` is tracked but ignored (set on the container)
- * - linked-list pointers and lifecycle fields used by Emitter
+ * - `next`/`prev` linked-list pointers and lifecycle fields used by Emitter
  */
 class XYProxy {
   constructor(
@@ -51,7 +49,7 @@ class XYProxy {
   }
 }
 
-export class FastParticle extends PixiParticle implements LinkedListChild {
+export class FastParticle extends PixiParticle {
   public emitter: Emitter;
   public maxLife: number = 0;
   public age: number = 0;
@@ -60,8 +58,6 @@ export class FastParticle extends PixiParticle implements LinkedListChild {
 
   public next: FastParticle | null = null;
   public prev: FastParticle | null = null;
-  public prevChild: LinkedListChild | null = null;
-  public nextChild: LinkedListChild | null = null;
 
   /** Static per-particle config for behaviors to use. Not cleared on recycle. */
   public config: { [key: string]: any } = {};
@@ -72,7 +68,7 @@ export class FastParticle extends PixiParticle implements LinkedListChild {
   /** Tracked for API compatibility; v8 ParticleContainer doesn't render hidden particles per-flag. */
   public visible: boolean = true;
   /** Tracked for API compatibility; ParticleContainer-level blend mode applies instead. */
-  public blendMode: string = "normal";
+  public blendMode: BLEND_MODES = "normal";
 
   public position: XYProxy;
   public scale: XYProxy;
