@@ -47,13 +47,12 @@
     "preview": "vite preview --config editor/vite.config.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "release": "np --no-tests"
+    "release": "npm version minor -m \"chore: release v%s\" && npm publish && git push --follow-tags"
   },
   "peerDependencies": {
     "pixi.js": "^8.0.0"
   },
   "devDependencies": {
-    "np": "^11.2.1",
     "pixi.js": "^8.8.1",
     "prettier": "3.8.3",
     "typescript": "~5.7.3",
