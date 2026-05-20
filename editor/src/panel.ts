@@ -217,14 +217,20 @@ export function renderPanel(scroll: HTMLElement, config: EmitterConfigV3, ctx: E
     ]),
   );
 
-  const addBtn = el("button", { class: "add-btn", type: "button" }, ["+ Add behavior"]);
-  on(addBtn, "click", () => {
-    openAddBehaviorMenu(addBtn, (meta) => {
-      config.behaviors.push({ type: meta.type, config: meta.defaultConfig() });
-      ctx.notifyStructural();
+  const makeAddBtn = (): HTMLButtonElement => {
+    const btn = el("button", { class: "add-btn", type: "button" }, [
+      "+ Add behavior",
+    ]) as HTMLButtonElement;
+    on(btn, "click", () => {
+      openAddBehaviorMenu(btn, (meta) => {
+        config.behaviors.push({ type: meta.type, config: meta.defaultConfig() });
+        ctx.notifyStructural();
+      });
     });
-  });
-  behaviorsSection.appendChild(el("div", { class: "add-row" }, [addBtn]));
+    return btn;
+  };
+
+  behaviorsSection.appendChild(el("div", { class: "add-row" }, [makeAddBtn()]));
 
   config.behaviors.forEach((entry, i) => {
     const card = behaviorCard(
@@ -254,6 +260,10 @@ export function renderPanel(scroll: HTMLElement, config: EmitterConfigV3, ctx: E
     );
     behaviorsSection.appendChild(card);
   });
+
+  if (config.behaviors.length > 0) {
+    behaviorsSection.appendChild(el("div", { class: "add-row" }, [makeAddBtn()]));
+  }
 
   scroll.appendChild(behaviorsSection);
 }

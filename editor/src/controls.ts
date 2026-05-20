@@ -55,17 +55,34 @@ export function numberControl(target: Target, p: NumberProperty, ctx: EditorCtx)
   if (p.max !== undefined) input.max = String(p.max);
   wrap.appendChild(input);
 
-  const commit = (v: number) => {
+  // Commit from the text input: update target + mirror to slider, but DON'T
+  // rewrite input.value — that would clobber intermediate states like "0." or
+  // "1e" while the user is mid-typing.
+  const commitFromInput = (v: number) => {
     if (!Number.isFinite(v)) return;
     target[p.name] = v;
     if (slider) slider.value = String(v);
+    ctx.notifyValue();
+  };
+  // Commit from the slider: update target + mirror to input (slider isn't the
+  // active text field, so overwriting the displayed text is safe).
+  const commitFromSlider = (v: number) => {
+    if (!Number.isFinite(v)) return;
+    target[p.name] = v;
     input.value = String(v);
     ctx.notifyValue();
   };
   if (slider) {
-    on(slider, "input", () => commit(parseFloat(slider!.value)));
+    on(slider, "input", () => commitFromSlider(parseFloat(slider!.value)));
   }
-  on(input, "input", () => commit(parseFloat(input.value)));
+  on(input, "input", () => commitFromInput(parseFloat(input.value)));
+  // On blur, normalize the displayed text so trailing "." / empty becomes the
+  // committed numeric value.
+  on(input, "blur", () => {
+    const v = parseFloat(input.value);
+    if (Number.isFinite(v)) input.value = String(v);
+    else input.value = String(target[p.name] ?? p.default);
+  });
 
   return wrap;
 }
