@@ -31,9 +31,55 @@
               <line x1="12" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.4" />
             </svg>
           </button>
-          <label id="bg-picker" title="Preview background color">
-            <input type="color" />
-          </label>
+          <button id="bg-mode" type="button" data-mode="solid" title="Background style">
+            <span class="bg-mode-swatch" aria-hidden="true"></span>
+            <svg
+              class="bg-mode-icon bg-mode-icon-checker"
+              viewBox="0 0 16 16"
+              width="14"
+              height="14"
+              aria-hidden="true"
+            >
+              <rect x="0" y="0" width="8" height="8" fill="currentColor" opacity="0.85" />
+              <rect x="8" y="8" width="8" height="8" fill="currentColor" opacity="0.85" />
+              <rect x="8" y="0" width="8" height="8" fill="currentColor" opacity="0.25" />
+              <rect x="0" y="8" width="8" height="8" fill="currentColor" opacity="0.25" />
+            </svg>
+            <svg
+              class="bg-mode-icon bg-mode-icon-grid"
+              viewBox="0 0 16 16"
+              width="14"
+              height="14"
+              aria-hidden="true"
+            >
+              <path
+                d="M0 5h16M0 10h16M5 0v16M10 0v16"
+                stroke="currentColor"
+                stroke-width="1.2"
+                fill="none"
+              />
+            </svg>
+          </button>
+          <div id="bg-mode-popover" class="bg-mode-popover" hidden>
+            <button type="button" class="bg-mode-row" data-mode="solid">
+              <span class="bg-mode-dot" aria-hidden="true"></span>
+              <span class="bg-mode-label">Solid</span>
+              <label class="bg-mode-color" title="Preview background color">
+                <span class="bg-mode-color-swatch" aria-hidden="true"></span>
+                <input type="color" />
+              </label>
+            </button>
+            <button type="button" class="bg-mode-row" data-mode="checker">
+              <span class="bg-mode-dot" aria-hidden="true"></span>
+              <span class="bg-mode-label">Checker</span>
+              <span class="bg-mode-preview bg-mode-preview-checker" aria-hidden="true"></span>
+            </button>
+            <button type="button" class="bg-mode-row" data-mode="grid">
+              <span class="bg-mode-dot" aria-hidden="true"></span>
+              <span class="bg-mode-label">Grid</span>
+              <span class="bg-mode-preview bg-mode-preview-grid" aria-hidden="true"></span>
+            </button>
+          </div>
           <div id="preview-hud">
             <span id="fps">—</span>
             <span class="dim">·</span>

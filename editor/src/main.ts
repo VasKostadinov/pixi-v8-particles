@@ -13,6 +13,7 @@ import { wireTopbar } from "./topbar";
 
 async function boot(): Promise<void> {
   const previewEl = document.getElementById("preview-canvas");
+  const previewSectionEl = document.getElementById("preview");
   const scrollEl = document.getElementById("panel-scroll");
   const splitterEl = document.getElementById("splitter");
   const workspaceEl = document.getElementById("workspace");
@@ -20,11 +21,14 @@ async function boot(): Promise<void> {
   const toastEl = document.getElementById("toast");
   const hudCount = document.getElementById("particle-count");
   const hudFps = document.getElementById("fps");
-  const bgPickerEl = document.getElementById("bg-picker");
-  const bgPickerInput = bgPickerEl?.querySelector<HTMLInputElement>('input[type="color"]') ?? null;
+  const bgModeBtn = document.getElementById("bg-mode");
+  const bgModePopover = document.getElementById("bg-mode-popover");
+  const bgModeColorInput =
+    bgModePopover?.querySelector<HTMLInputElement>('input[type="color"]') ?? null;
   const followMouseBtn = document.getElementById("follow-mouse");
   if (
     !(previewEl instanceof HTMLElement) ||
+    !(previewSectionEl instanceof HTMLElement) ||
     !(scrollEl instanceof HTMLElement) ||
     !(splitterEl instanceof HTMLElement) ||
     !(workspaceEl instanceof HTMLElement) ||
@@ -32,34 +36,83 @@ async function boot(): Promise<void> {
     !(toastEl instanceof HTMLElement) ||
     !(hudCount instanceof HTMLElement) ||
     !(hudFps instanceof HTMLElement) ||
-    !(bgPickerEl instanceof HTMLElement) ||
-    !(bgPickerInput instanceof HTMLInputElement) ||
+    !(bgModeBtn instanceof HTMLButtonElement) ||
+    !(bgModePopover instanceof HTMLElement) ||
+    !(bgModeColorInput instanceof HTMLInputElement) ||
     !(followMouseBtn instanceof HTMLButtonElement)
   ) {
     throw new Error("Editor DOM scaffold missing");
   }
 
   const initialBg = loadStoredBg() ?? "#0a0a0c";
+  const initialBgMode = loadStoredBgMode();
   const app = new Application();
   await app.init({
-    background: hexToNumber(initialBg),
+    backgroundAlpha: 0,
     resizeTo: previewEl,
     antialias: true,
   });
   previewEl.appendChild(app.canvas);
 
-  const applyBg = (hex: string) => {
-    app.renderer.background.color = hexToNumber(hex);
-    bgPickerEl.style.setProperty("--c", hex);
+  let bgColor = initialBg;
+  let bgMode: BgMode = initialBgMode;
+
+  const applyBg = () => {
+    previewSectionEl.dataset.bgMode = bgMode;
+    previewSectionEl.style.setProperty("--bg-color", bgColor);
+    bgModeBtn.dataset.mode = bgMode;
+    bgModeBtn.style.setProperty("--c", bgColor);
+    bgModeColorInput.value = bgColor;
+    for (const row of bgModePopover.querySelectorAll<HTMLElement>(".bg-mode-row")) {
+      row.classList.toggle("active", row.dataset.mode === bgMode);
+      row.style.setProperty("--c", bgColor);
+    }
     try {
-      localStorage.setItem("preview-bg", hex);
+      localStorage.setItem("preview-bg", bgColor);
+      localStorage.setItem("preview-bg-mode", bgMode);
     } catch {
       // localStorage may be blocked (private mode, quota) — non-fatal.
     }
   };
-  bgPickerInput.value = initialBg;
-  bgPickerEl.style.setProperty("--c", initialBg);
-  bgPickerInput.addEventListener("input", () => applyBg(bgPickerInput.value));
+  applyBg();
+
+  bgModeColorInput.addEventListener("input", () => {
+    bgColor = bgModeColorInput.value;
+    // Picking a color implies the user wants solid mode.
+    bgMode = "solid";
+    applyBg();
+  });
+
+  const togglePopover = (force?: boolean) => {
+    const open = force ?? bgModePopover.hidden;
+    bgModePopover.hidden = !open;
+  };
+  bgModeBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    togglePopover();
+  });
+  bgModePopover.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const row = (e.target as Element).closest<HTMLElement>(".bg-mode-row");
+    if (!row) return;
+    // Don't activate the row when the click was on the color picker itself —
+    // let the native picker open and the input event handle the mode switch.
+    if ((e.target as Element).closest(".bg-mode-color")) return;
+    const mode = row.dataset.mode as BgMode | undefined;
+    if (!mode) return;
+    bgMode = mode;
+    applyBg();
+    togglePopover(false);
+  });
+  document.addEventListener("click", (e) => {
+    if (bgModePopover.hidden) return;
+    if (bgModeBtn.contains(e.target as Node)) return;
+    if (bgModePopover.contains(e.target as Node)) return;
+    togglePopover(false);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !bgModePopover.hidden) togglePopover(false);
+  });
 
   const stage = new PreviewStage(app);
   const config = defaultConfig();
@@ -150,6 +203,8 @@ async function boot(): Promise<void> {
 
 void boot();
 
+type BgMode = "solid" | "checker" | "grid";
+
 function loadStoredBg(): string | null {
   try {
     const v = localStorage.getItem("preview-bg");
@@ -159,8 +214,14 @@ function loadStoredBg(): string | null {
   }
 }
 
-function hexToNumber(hex: string): number {
-  return parseInt(hex.slice(1), 16);
+function loadStoredBgMode(): BgMode {
+  try {
+    const v = localStorage.getItem("preview-bg-mode");
+    if (v === "solid" || v === "checker" || v === "grid") return v;
+  } catch {
+    // fall through to default
+  }
+  return "solid";
 }
 
 function wireHistoryShortcuts(history: History): void {
