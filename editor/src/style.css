@@ -1141,3 +1141,23 @@ select {
 .card.drag-over-bottom {
   box-shadow: 0 2px 0 0 var(--accent);
 }
+
+/* Image input wrapper — full-width so the drop target spans the row. */
+.image-drop {
+  display: block;
+  width: 100%;
+}
+
+/* Drag-and-drop targets: highlight active zone while a file is hovering. */
+.is-dragover {
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
+  background-color: var(--accent-dim);
+}
+/* Inputs / list / image-drop already have a border — soften the outline so it
+   doesn't clash. */
+input.is-dragover,
+.image-drop.is-dragover,
+.vlist.is-dragover {
+  outline-style: solid;
+}

@@ -1,4 +1,11 @@
-import { Application, Container, ParticleContainer, Texture, type Ticker } from "pixi.js";
+import {
+  Application,
+  Cache,
+  Container,
+  ParticleContainer,
+  Texture,
+  type Ticker,
+} from "pixi.js";
 import { Emitter } from "../../src/Emitter";
 import type { EmitterConfigV3 } from "../../src/EmitterConfig";
 
@@ -183,8 +190,12 @@ function normalizeValueList(list: ValueListLike): ValueListLike {
 function stringToTexture(t: unknown): Texture {
   if (t instanceof Texture) return t;
   if (typeof t === "string" && t.trim()) {
+    // Texture.from(string) is a bare Cache.get() in pixi v8 — it warns and
+    // returns undefined on miss. Check first so a not-yet-loaded URL falls
+    // back quietly to WHITE; textureLoader will re-apply once it lands.
+    if (!Cache.has(t)) return Texture.WHITE;
     try {
-      return Texture.from(t);
+      return Texture.from(t) ?? Texture.WHITE;
     } catch {
       return Texture.WHITE;
     }

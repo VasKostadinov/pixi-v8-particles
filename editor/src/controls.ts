@@ -9,6 +9,8 @@ import type {
 } from "../../src/behaviors/editor/Types";
 import type { EditorCtx } from "./ctx";
 import { el, on } from "./dom";
+import * as textureLoader from "./textureLoader";
+import { attachDropZone } from "./dropZone";
 
 type Target = Record<string, unknown>;
 
@@ -148,19 +150,52 @@ export function textControl(target: Target, p: TextProperty, ctx: EditorCtx): HT
   return input;
 }
 
-/* ---------- image (URL string) ---------- */
+/* ---------- image (URL string + drag-and-drop) ---------- */
 export function imageControl(target: Target, p: ImageProperty, ctx: EditorCtx): HTMLElement {
   ensure(target, p.name, () => "");
+  const initial = String(target[p.name] ?? "");
   const input = el("input", {
     class: "input",
-    value: String(target[p.name] ?? ""),
-    placeholder: "URL (blank = white square)",
+    value: initial,
+    placeholder: "Drop image or paste URL",
   });
+  // Kick off a load for any URL the field starts with (default config, panel
+  // rebuild after a config import, etc.) so particles aren't stuck on WHITE.
+  textureLoader.ensureLoaded(initial.trim());
   on(input, "input", () => {
     target[p.name] = input.value;
+    textureLoader.ensureLoaded(input.value.trim());
     ctx.notifyValue();
   });
-  return input;
+
+  // Wrap in a block-level div so the drop target is a stable container rather
+  // than the <input> itself (focused inputs intercept drop events on some
+  // browsers, and a div is also a more reliable hook for the .is-dragover
+  // outline).
+  const wrap = el("div", { class: "image-drop" }, [input]);
+  attachDropZone(
+    wrap,
+    (files) => {
+      if (files.length === 0) {
+        ctx.toast("No image files in drop", "info");
+        return;
+      }
+      const first = files[0];
+      const url = textureLoader.addFile(first);
+      target[p.name] = url;
+      input.value = url;
+      ctx.notifyValue();
+      if (files.length > 1) {
+        ctx.toast(
+          `Only one texture per slot — used ${first.name}, ignored ${files.length - 1}`,
+          "info",
+        );
+      }
+    },
+    { stopPropagation: true },
+  );
+
+  return wrap;
 }
 
 /* ---------- select ---------- */

@@ -3,12 +3,14 @@ import "pixi.js/advanced-blend-modes";
 import "../../src";
 import "../../src/behaviors/editor";
 import { PreviewStage } from "./PreviewStage";
+import * as textureLoader from "./textureLoader";
 import type { EditorCtx } from "./ctx";
 import { defaultConfig } from "./defaultConfig";
 import { createHistory, type History } from "./history";
 import { renderPanel } from "./panel";
 import { wireSplitter } from "./splitter";
 import { createToast } from "./toast";
+import { attachGlobalDrop } from "./globalDrop";
 import { wireTopbar } from "./topbar";
 
 async function boot(): Promise<void> {
@@ -118,6 +120,11 @@ async function boot(): Promise<void> {
   const config = defaultConfig();
   stage.applyConfig(config);
 
+  // A dropped image's bitmap loads asynchronously into pixi's cache after
+  // addFile returns. Re-apply the config so the emitter picks up the now-
+  // resolvable texture instead of rendering Texture.WHITE.
+  textureLoader.subscribe(() => stage.applyConfig(config));
+
   const initialFollow = loadStoredFollowMouse();
   const applyFollow = (on: boolean) => {
     stage.setFollowMouse(on);
@@ -144,6 +151,19 @@ async function boot(): Promise<void> {
   }).observe(previewEl);
 
   const toast = createToast(toastEl);
+
+  textureLoader.subscribeLoadErrors(({ url, reason }) => {
+    if (reason === "cors") {
+      toast(
+        `Image blocked by CORS — host doesn't allow cross-origin use. Try a CORS-friendly URL or drop the file.`,
+        "err",
+      );
+    } else if (reason === "decode") {
+      toast(`Could not decode image: ${url}`, "err");
+    } else {
+      toast(`Failed to load image — see console for details.`, "err");
+    }
+  });
 
   const rebuildPanel = () => {
     const prevScroll = scrollEl.scrollTop;
@@ -183,6 +203,7 @@ async function boot(): Promise<void> {
   });
   wireSplitter(splitterEl, workspaceEl);
   wireTopbar(topbarEl, config, ctx, history);
+  attachGlobalDrop(workspaceEl, config, ctx);
   wireHistoryShortcuts(history);
 
   // HUD: fps + alive particle count

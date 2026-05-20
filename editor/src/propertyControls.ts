@@ -19,8 +19,36 @@ import {
   textControl,
 } from "./controls";
 import { colorListControl, numberListControl } from "./valueListEditor";
+import * as textureLoader from "./textureLoader";
+import { attachDropZone } from "./dropZone";
 
 type Target = Record<string, unknown>;
+
+/**
+ * Given a list's entryType and a fresh entry, decide where to write a dropped
+ * blob URL. Writes the URL into the appropriate image slot.
+ *
+ * Supported shapes:
+ *   - entryType is ImageProperty itself → the entry is a raw string; write it directly.
+ *   - entryType is ObjectProperty with a nested ImageProperty → write into that field.
+ */
+function applyImageToListEntry(
+  arr: unknown[],
+  index: number,
+  entryType: Property,
+  url: string,
+): void {
+  if (entryType.type === "image") {
+    arr[index] = url;
+    return;
+  }
+  if (entryType.type === "object") {
+    const inner = entryType.props.find((sp) => sp.type === "image");
+    if (!inner) return;
+    const entry = arr[index] as Record<string, unknown>;
+    entry[inner.name] = url;
+  }
+}
 
 export function renderProperty(
   parent: HTMLElement,
@@ -124,6 +152,31 @@ function renderList(parent: HTMLElement, target: Target, p: ListProperty, ctx: E
     ctx.notifyStructural();
   });
   wrap.appendChild(el("div", { class: "vlist-foot" }, [add]));
+
+  // Make the list a drop target when its entry type accepts images. Drop N
+  // files → append N entries, each with the blob URL written into the right slot.
+  const acceptsImages =
+    p.entryType.type === "image" ||
+    (p.entryType.type === "object" && p.entryType.props.some((sp) => sp.type === "image"));
+  if (acceptsImages) {
+    attachDropZone(
+      wrap,
+      (files) => {
+        if (files.length === 0) {
+          ctx.toast("No image files in drop", "info");
+          return;
+        }
+        for (const file of files) {
+          const url = textureLoader.addFile(file);
+          arr.push(defaultForProperty(p.entryType));
+          applyImageToListEntry(arr, arr.length - 1, p.entryType, url);
+        }
+        ctx.notifyStructural();
+      },
+      { stopPropagation: true },
+    );
+  }
+
   parent.appendChild(wrap);
 }
 

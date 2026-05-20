@@ -27,18 +27,31 @@ export function wireTopbar(
   refreshHistoryButtons();
 
   on(button("copy")!, "click", async () => {
-    const text = exportConfig(config);
-    const ok = await copyToClipboard(text);
+    const { json, replacedCount } = exportConfig(config);
+    const ok = await copyToClipboard(json);
     ctx.toast(
-      ok ? `Copied ${text.length} chars` : "Clipboard blocked — see console",
+      ok ? `Copied ${json.length} chars` : "Clipboard blocked — see console",
       ok ? "ok" : "err",
     );
-    if (!ok) console.log(text);
+    if (!ok) console.log(json);
+    if (ok && replacedCount > 0) {
+      ctx.toast(
+        `${replacedCount} session-only texture(s) exported as filename references — replace with real URLs before reuse.`,
+        "info",
+      );
+    }
   });
 
   on(button("download")!, "click", () => {
-    downloadJson(exportConfig(config));
+    const { json, replacedCount } = exportConfig(config);
+    downloadJson(json);
     ctx.toast("Downloaded emitter.json", "ok");
+    if (replacedCount > 0) {
+      ctx.toast(
+        `${replacedCount} session-only texture(s) exported as filename references — replace with real URLs before reuse.`,
+        "info",
+      );
+    }
   });
 
   on(button("reset")!, "click", () => {
