@@ -23,6 +23,7 @@ import { ScaleBehavior, StaticScaleBehavior } from "../../src/behaviors/Scale";
 import { ShapeSpawnBehavior } from "../../src/behaviors/ShapeSpawn";
 import { SingleTextureBehavior } from "../../src/behaviors/SingleTexture";
 import { SpeedBehavior, StaticSpeedBehavior } from "../../src/behaviors/SpeedMovement";
+import { VelocityRotationBehavior } from "../../src/behaviors/VelocityRotation";
 
 export interface BehaviorMeta {
   type: string;
@@ -53,6 +54,7 @@ const allClasses: IEmitterBehaviorClass[] = [
   SingleTextureBehavior,
   SpeedBehavior,
   StaticSpeedBehavior,
+  VelocityRotationBehavior,
 ];
 
 export const behaviorMetas: BehaviorMeta[] = allClasses

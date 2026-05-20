@@ -23,6 +23,7 @@ Emitter.registerBehavior(behaviors.ShapeSpawnBehavior);
 Emitter.registerBehavior(behaviors.SingleTextureBehavior);
 Emitter.registerBehavior(behaviors.SpeedBehavior);
 Emitter.registerBehavior(behaviors.StaticSpeedBehavior);
+Emitter.registerBehavior(behaviors.VelocityRotationBehavior);
 
 export * as behaviors from "./behaviors";
 export * as ParticleUtils from "./ParticleUtils";
