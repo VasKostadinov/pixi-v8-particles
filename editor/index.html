@@ -13,7 +13,12 @@
         <div class="actions">
           <button data-action="undo" class="ghost" title="Undo (Ctrl+Z)" disabled>Undo</button>
           <button data-action="redo" class="ghost" title="Redo (Ctrl+Shift+Z)" disabled>Redo</button>
-          <button data-action="reset" class="ghost">Reset</button>
+          <div class="preset-wrap">
+            <button id="preset-btn" type="button" class="ghost" title="Load a preset">
+              Preset <span class="preset-chev" aria-hidden="true">▾</span>
+            </button>
+            <div id="preset-popover" class="preset-popover" hidden></div>
+          </div>
           <button data-action="import">Import</button>
           <button data-action="copy" class="primary">Copy JSON</button>
           <button data-action="download">Download</button>

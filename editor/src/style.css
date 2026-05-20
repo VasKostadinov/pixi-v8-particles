@@ -64,6 +64,7 @@ select {
 
 /* ---------- top bar ---------- */
 #topbar {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1160,4 +1161,81 @@ input.is-dragover,
 .image-drop.is-dragover,
 .vlist.is-dragover {
   outline-style: solid;
+}
+
+/* ------------------------------------------------------------------ */
+/* Preset popover (topbar)                                            */
+/* Anchors to #topbar via .preset-wrap relative positioning, so the   */
+/* popover floats just below the Preset button.                       */
+/* ------------------------------------------------------------------ */
+.preset-wrap {
+  position: relative;
+  display: inline-flex;
+}
+.preset-chev {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 10px;
+  line-height: 1;
+  opacity: 0.7;
+}
+.preset-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 30;
+  min-width: 180px;
+  padding: 6px;
+  background: var(--panel-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.preset-popover[hidden] {
+  display: none;
+}
+.preset-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.preset-row:hover {
+  background: var(--panel);
+}
+.preset-row .preset-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
+  flex-shrink: 0;
+}
+.preset-row.active .preset-dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 2px var(--panel-3);
+}
+.preset-row .preset-label {
+  flex: 1;
+  color: var(--fg-muted);
+}
+.preset-row:hover .preset-label {
+  color: var(--fg);
+}
+.preset-row.active .preset-label {
+  color: var(--accent);
+}
+.preset-row.active:hover .preset-label {
+  color: var(--accent);
 }
