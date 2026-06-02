@@ -30,7 +30,6 @@
     ".": "./src/index.ts"
   },
   "sideEffects": [
-    "./src/index.ts",
     "./src/behaviors/editor/**"
   ],
   "engines": {

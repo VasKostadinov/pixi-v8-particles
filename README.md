@@ -33,6 +33,31 @@ const emitter = new Emitter(parent, config);
 app.ticker.add((time) => emitter.update(time.deltaMS * 0.001));
 ```
 
+### Registering behaviors
+
+Behaviors are **opt-in** so bundlers can tree-shake the ones you don't use. Before constructing an `Emitter`, register the behavior types your config references:
+
+```ts
+import { Emitter, behaviors } from "pixi-v8-particles";
+
+Emitter.registerBehavior(behaviors.PointSpawnBehavior);
+Emitter.registerBehavior(behaviors.ColorBehavior);
+Emitter.registerBehavior(behaviors.ScaleBehavior);
+// ...only what your config uses
+```
+
+If you'd rather have everything available and don't mind the bundle cost, call the convenience helper once at startup instead:
+
+```ts
+import { registerAllBehaviors } from "pixi-v8-particles";
+
+registerAllBehaviors();
+```
+
+Registration is idempotent (keyed by behavior `type`), so calling `registerAllBehaviors()` more than once, or mixing it with manual `registerBehavior` calls, is safe. An `Emitter` whose config references an unregistered type will skip that behavior.
+
+> **Note:** prior versions registered all behaviors automatically on import. They no longer do — add the registration step above when upgrading.
+
 Texture references in editor-exported JSON are URL strings (or empty for "no texture"). The library substitutes `Texture.WHITE` for empty/blank strings automatically and calls `Texture.from(url)` otherwise — so editor JSON drops in directly.
 
 For the v8 fast path, pass a `ParticleContainer` parent and the third arg `FastParticle`:

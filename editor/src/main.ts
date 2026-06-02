@@ -1,7 +1,11 @@
 import { Application } from "pixi.js";
 import "pixi.js/advanced-blend-modes";
-import "../../src";
+import { registerAllBehaviors } from "../../src";
 import "../../src/behaviors/editor";
+
+// The editor's preview needs every behavior available; the library no longer
+// registers them on import so consumers can tree-shake.
+registerAllBehaviors();
 import { PreviewStage } from "./PreviewStage";
 import * as textureLoader from "./textureLoader";
 import type { EditorCtx } from "./ctx";
