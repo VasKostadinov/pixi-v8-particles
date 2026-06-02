@@ -1,6 +1,6 @@
 // @ts-nocheck — vendored from pixijs-userland/particle-emitter; loose typing matches upstream.
 import { Particle } from "../../Particle";
-import type { ObjectProperty } from "../editor/Types";
+import type { ObjectProperty } from "../BehaviorConfigSchema";
 import { SpawnShape } from "./SpawnShape";
 
 /**
@@ -21,7 +21,7 @@ import { SpawnShape } from "./SpawnShape";
  */
 export class Rectangle implements SpawnShape {
   public static type = "rect";
-  public static editorConfig: ObjectProperty = null;
+  public static configSchema: ObjectProperty = null;
   /**
    * X (left) position of the rectangle.
    */

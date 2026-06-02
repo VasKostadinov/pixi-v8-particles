@@ -1,7 +1,7 @@
 // @ts-nocheck — vendored from pixijs-userland/particle-emitter; loose typing matches upstream.
 import { Particle } from "../../Particle";
 import { rotatePoint } from "../../ParticleUtils";
-import { ObjectProperty } from "../editor/Types";
+import type { ObjectProperty } from "../BehaviorConfigSchema";
 import { SpawnShape } from "./SpawnShape";
 
 /**
@@ -24,7 +24,7 @@ import { SpawnShape } from "./SpawnShape";
  */
 export class Torus implements SpawnShape {
   public static type = "torus";
-  public static editorConfig: ObjectProperty = null;
+  public static configSchema: ObjectProperty = null;
   /**
    * X position of the center of the shape.
    */

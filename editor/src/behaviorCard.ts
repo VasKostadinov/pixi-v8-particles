@@ -20,9 +20,9 @@ export function behaviorCard(
   onMove: (delta: -1 | 1) => void,
 ): HTMLElement {
   const meta = behaviorMetaByType.get(entry.type);
-  const category = meta?.editorConfig.category ?? "other";
-  const title = meta?.editorConfig.title ?? entry.type;
-  const hasBody = meta ? meta.editorConfig.props.length > 0 : true;
+  const category = meta?.configSchema.category ?? "other";
+  const title = meta?.configSchema.title ?? entry.type;
+  const hasBody = meta ? meta.configSchema.props.length > 0 : true;
 
   const card = el("div", {
     class: collapsed.has(index) ? "card collapsed" : "card",
@@ -85,7 +85,7 @@ export function behaviorCard(
     });
 
     if (meta) {
-      for (const prop of meta.editorConfig.props) {
+      for (const prop of meta.configSchema.props) {
         renderProperty(body, entry.config as Record<string, unknown>, prop, ctx);
       }
     } else {

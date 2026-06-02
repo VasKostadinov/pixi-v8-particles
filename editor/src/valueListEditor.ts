@@ -1,4 +1,7 @@
-import type { ColorListProperty, NumberListProperty } from "../../src/behaviors/editor/Types";
+import type {
+  ColorListProperty,
+  NumberListProperty,
+} from "../../src/behaviors/BehaviorConfigSchema";
 import type { EditorCtx } from "./ctx";
 import { el, on } from "./dom";
 import { booleanEl } from "./controls";

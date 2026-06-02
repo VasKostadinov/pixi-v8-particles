@@ -3,7 +3,7 @@ import { Particle } from "../Particle";
 import { PropertyList } from "../PropertyList";
 import { PropertyNode, ValueList } from "../PropertyNode";
 import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
-import { BehaviorEditorConfig } from "./editor/Types";
+import type { BehaviorConfigSchema } from "./BehaviorConfigSchema";
 
 /**
  * An Alpha behavior that applies an interpolated or stepped list of values to the particle's opacity.
@@ -22,7 +22,7 @@ import { BehaviorEditorConfig } from "./editor/Types";
  */
 export class AlphaBehavior implements IEmitterBehavior {
   public static type = "alpha";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   public order = BehaviorOrder.Normal;
   private list: PropertyList<number>;
@@ -65,7 +65,7 @@ export class AlphaBehavior implements IEmitterBehavior {
  */
 export class StaticAlphaBehavior implements IEmitterBehavior {
   public static type = "alphaStatic";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   public order = BehaviorOrder.Normal;
   private value: number;

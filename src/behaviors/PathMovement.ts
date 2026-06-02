@@ -5,7 +5,7 @@ import { rotatePoint, verbose } from "../ParticleUtils";
 import { PropertyList } from "../PropertyList";
 import { PropertyNode, ValueList } from "../PropertyNode";
 import { BehaviorOrder, IEmitterBehavior } from "./Behaviors";
-import { BehaviorEditorConfig } from "./editor/Types";
+import type { BehaviorConfigSchema } from "./BehaviorConfigSchema";
 
 /**
  * A helper point for math things.
@@ -133,7 +133,7 @@ function parsePath(pathString: string): (x: number) => number {
  */
 export class PathBehavior implements IEmitterBehavior {
   public static type = "movePath";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   // *MUST* happen after other behaviors do initialization so that we can read initial transformations
   public order = BehaviorOrder.Late;

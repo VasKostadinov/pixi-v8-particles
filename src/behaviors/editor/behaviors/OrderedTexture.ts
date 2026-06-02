@@ -1,6 +1,6 @@
 import { OrderedTextureBehavior } from "../../OrderedTexture";
 
-OrderedTextureBehavior.editorConfig = {
+OrderedTextureBehavior.configSchema = {
   category: "art",
   title: "Ordered Texture",
   props: [

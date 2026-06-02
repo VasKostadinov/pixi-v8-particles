@@ -1,6 +1,6 @@
 import { Torus } from "../../shapes/Torus";
 
-Torus.editorConfig = {
+Torus.configSchema = {
   type: "object",
   name: "",
   title: "Torus",

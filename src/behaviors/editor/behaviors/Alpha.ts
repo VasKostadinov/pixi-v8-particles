@@ -1,6 +1,6 @@
 import { AlphaBehavior, StaticAlphaBehavior } from "../../Alpha";
 
-AlphaBehavior.editorConfig = {
+AlphaBehavior.configSchema = {
   category: "alpha",
   title: "Interpolated Alpha",
   props: [
@@ -16,7 +16,7 @@ AlphaBehavior.editorConfig = {
   ],
 };
 
-StaticAlphaBehavior.editorConfig = {
+StaticAlphaBehavior.configSchema = {
   category: "alpha",
   title: "Static Alpha",
   props: [

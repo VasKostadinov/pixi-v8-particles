@@ -1,6 +1,6 @@
 import { RotationBehavior, StaticRotationBehavior, NoRotationBehavior } from "../../Rotation";
 
-RotationBehavior.editorConfig = {
+RotationBehavior.configSchema = {
   category: "rotation",
   title: "Dynamic Rotation",
   props: [
@@ -46,7 +46,7 @@ RotationBehavior.editorConfig = {
   ],
 };
 
-StaticRotationBehavior.editorConfig = {
+StaticRotationBehavior.configSchema = {
   category: "rotation",
   title: "Static Rotation",
   props: [
@@ -69,7 +69,7 @@ StaticRotationBehavior.editorConfig = {
   ],
 };
 
-NoRotationBehavior.editorConfig = {
+NoRotationBehavior.configSchema = {
   category: "rotation",
   title: "No Rotation",
   props: [],

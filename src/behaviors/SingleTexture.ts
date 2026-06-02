@@ -3,7 +3,7 @@ import { Texture } from "pixi.js";
 import { Particle } from "../Particle";
 import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
 import { GetTextureFromString } from "../ParticleUtils";
-import { BehaviorEditorConfig } from "./editor/Types";
+import type { BehaviorConfigSchema } from "./BehaviorConfigSchema";
 
 /**
  * A Textuure behavior that assigns a single texture to each particle.
@@ -21,7 +21,7 @@ import { BehaviorEditorConfig } from "./editor/Types";
  */
 export class SingleTextureBehavior implements IEmitterBehavior {
   public static type = "textureSingle";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   public order = BehaviorOrder.Normal;
   private texture: Texture;

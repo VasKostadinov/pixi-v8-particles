@@ -1,12 +1,8 @@
 import type { EmitterConfigV3 } from "../../src/EmitterConfig";
-import * as textureLoader from "./textureLoader";
 import type { EditorCtx } from "./ctx";
 import { attachDropZone } from "./dropZone";
-import {
-  TEXTURE_RANDOM,
-  TEXTURE_SINGLE,
-  isKnownTextureBehaviorType,
-} from "./textureBehaviorTypes";
+import { TEXTURE_RANDOM, TEXTURE_SINGLE, isKnownTextureBehaviorType } from "./textureBehaviorTypes";
+import * as textureLoader from "./textureLoader";
 
 /**
  * Attach a drop zone at the editor's workspace root. Inner zones (per-input,
@@ -21,11 +17,7 @@ import {
  *   - textureSingle → replace config.texture with first URL; toast on extras.
  *   - None found → 1 file adds textureSingle; 2+ files add textureRandom.
  */
-export function attachGlobalDrop(
-  root: HTMLElement,
-  config: EmitterConfigV3,
-  ctx: EditorCtx,
-): void {
+export function attachGlobalDrop(root: HTMLElement, config: EmitterConfigV3, ctx: EditorCtx): void {
   attachDropZone(root, (files) => {
     if (files.length === 0) {
       ctx.toast("No image files in drop", "info");

@@ -5,7 +5,7 @@ import { rotatePoint, normalize, scaleBy } from "../ParticleUtils";
 import { PropertyList } from "../PropertyList";
 import { PropertyNode, ValueList } from "../PropertyNode";
 import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
-import { BehaviorEditorConfig } from "./editor/Types";
+import type { BehaviorConfigSchema } from "./BehaviorConfigSchema";
 
 /**
  * A Movement behavior that uses an interpolated or stepped list of values for a particles speed at any given moment.
@@ -26,7 +26,7 @@ import { BehaviorEditorConfig } from "./editor/Types";
  */
 export class SpeedBehavior implements IEmitterBehavior {
   public static type = "moveSpeed";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   public order = BehaviorOrder.Late;
   private list: PropertyList<number>;
@@ -94,7 +94,7 @@ export class SpeedBehavior implements IEmitterBehavior {
  */
 export class StaticSpeedBehavior implements IEmitterBehavior {
   public static type = "moveSpeedStatic";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   public order = BehaviorOrder.Late;
   private min: number;

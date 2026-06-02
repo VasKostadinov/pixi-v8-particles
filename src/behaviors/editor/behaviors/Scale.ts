@@ -1,6 +1,6 @@
 import { ScaleBehavior, StaticScaleBehavior } from "../../Scale";
 
-ScaleBehavior.editorConfig = {
+ScaleBehavior.configSchema = {
   category: "scale",
   title: "Interpolated Scale",
   props: [
@@ -26,7 +26,7 @@ ScaleBehavior.editorConfig = {
   ],
 };
 
-StaticScaleBehavior.editorConfig = {
+StaticScaleBehavior.configSchema = {
   category: "scale",
   title: "Static Scale",
   props: [

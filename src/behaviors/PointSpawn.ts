@@ -1,7 +1,7 @@
 // @ts-nocheck — vendored from pixijs-userland/particle-emitter; loose typing matches upstream.
 import { Particle } from "../Particle";
 import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
-import { BehaviorEditorConfig } from "./editor/Types";
+import type { BehaviorConfigSchema } from "./BehaviorConfigSchema";
 
 /**
  * A Spawn behavior that sends particles out from a single point at the emitter's position.
@@ -16,7 +16,7 @@ import { BehaviorEditorConfig } from "./editor/Types";
  */
 export class PointSpawnBehavior implements IEmitterBehavior {
   public static type = "spawnPoint";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   order = BehaviorOrder.Spawn;
 

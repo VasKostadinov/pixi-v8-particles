@@ -1,6 +1,6 @@
 // @ts-nocheck — vendored from pixijs-userland/particle-emitter; loose typing matches upstream.
 import type { PointData as IPointData } from "pixi.js";
-import { ListProperty } from "../editor/Types";
+import type { ListProperty } from "../BehaviorConfigSchema";
 import { SpawnShape } from "./SpawnShape";
 
 /**
@@ -29,7 +29,7 @@ export interface Segment {
  */
 export class PolygonalChain implements SpawnShape {
   public static type = "polygonalChain";
-  public static editorConfig: ListProperty = null;
+  public static configSchema: ListProperty = null;
   /**
    * List of segment objects in the chain.
    */

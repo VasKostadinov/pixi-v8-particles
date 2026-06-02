@@ -2,7 +2,7 @@
 import { Particle } from "../Particle";
 import { DEG_TO_RADS } from "../ParticleUtils";
 import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
-import { BehaviorEditorConfig } from "./editor/Types";
+import type { BehaviorConfigSchema } from "./BehaviorConfigSchema";
 
 /**
  * A Rotation behavior that handles starting rotation, rotation speed, and rotational acceleration.
@@ -23,7 +23,7 @@ import { BehaviorEditorConfig } from "./editor/Types";
  */
 export class RotationBehavior implements IEmitterBehavior {
   public static type = "rotation";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   public order = BehaviorOrder.Normal;
   private minStart: number;
@@ -103,7 +103,7 @@ export class RotationBehavior implements IEmitterBehavior {
  */
 export class StaticRotationBehavior implements IEmitterBehavior {
   public static type = "rotationStatic";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   public order = BehaviorOrder.Normal;
   private min: number;
@@ -153,7 +153,7 @@ export class StaticRotationBehavior implements IEmitterBehavior {
  */
 export class NoRotationBehavior implements IEmitterBehavior {
   public static type = "noRotation";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   public order = BehaviorOrder.Late + 1;
 

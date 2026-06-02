@@ -7,7 +7,7 @@ export function openAddBehaviorMenu(
 ): void {
   const grouped = new Map<string, BehaviorMeta[]>();
   for (const m of behaviorMetas) {
-    const cat = m.editorConfig.category;
+    const cat = m.configSchema.category;
     const arr = grouped.get(cat) ?? [];
     arr.push(m);
     grouped.set(cat, arr);
@@ -20,7 +20,7 @@ export function openAddBehaviorMenu(
     pop.appendChild(el("div", { class: "cat" }, [cat]));
     for (const meta of metas) {
       const btn = el("button", { class: "item", type: "button" }, [
-        el("span", {}, [meta.editorConfig.title]),
+        el("span", {}, [meta.configSchema.title]),
         el("span", { class: "type" }, [meta.type]),
       ]);
       on(btn, "click", () => {

@@ -3,7 +3,7 @@ import type {
   ObjectProperty,
   Property,
   SelectSubConfigProperty,
-} from "../../src/behaviors/editor/Types";
+} from "../../src/behaviors/BehaviorConfigSchema";
 import { buildDefault, defaultForProperty } from "./behaviorRegistry";
 import { dictionaries } from "./shapeRegistry";
 import type { EditorCtx } from "./ctx";
@@ -204,7 +204,7 @@ function renderSubConfig(
         class: isActive ? "tab active" : "tab",
         type: "button",
       },
-      [meta.editorConfig.title || meta.type],
+      [meta.configSchema.title || meta.type],
     );
     on(tab, "click", () => {
       if (target[p.name] === meta.type) return;
@@ -221,7 +221,7 @@ function renderSubConfig(
     renderProperty(
       parent,
       target,
-      { ...(selected.editorConfig as Property), name: p.configName } as Property,
+      { ...(selected.configSchema as Property), name: p.configName } as Property,
       ctx,
     );
   }

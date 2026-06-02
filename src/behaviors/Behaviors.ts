@@ -1,5 +1,5 @@
 import { Particle } from "../Particle";
-import { BehaviorEditorConfig } from "./editor/Types";
+import type { BehaviorConfigSchema } from "./BehaviorConfigSchema";
 
 /**
  * All behaviors instances must implement this interface, and the class must match the
@@ -42,7 +42,7 @@ export interface IEmitterBehaviorClass {
   /**
    * Configuration data for an editor to display this behavior. Does not need to exist in production code.
    */
-  editorConfig?: BehaviorEditorConfig;
+  configSchema?: BehaviorConfigSchema;
   /**
    * The behavior constructor itself.
    * @param config The config for the behavior, which should match its defined specifications.

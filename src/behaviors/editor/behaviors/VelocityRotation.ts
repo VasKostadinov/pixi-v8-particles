@@ -1,6 +1,6 @@
 import { VelocityRotationBehavior } from "../../VelocityRotation";
 
-VelocityRotationBehavior.editorConfig = {
+VelocityRotationBehavior.configSchema = {
   category: "rotation",
   title: "Align Rotation to Velocity",
   props: [

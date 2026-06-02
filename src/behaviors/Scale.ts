@@ -3,7 +3,7 @@ import { Particle } from "../Particle";
 import { PropertyList } from "../PropertyList";
 import { PropertyNode, ValueList } from "../PropertyNode";
 import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
-import { BehaviorEditorConfig } from "./editor/Types";
+import type { BehaviorConfigSchema } from "./BehaviorConfigSchema";
 
 /**
  * A Scale behavior that applies an interpolated or stepped list of values to the particle's x & y scale.
@@ -24,7 +24,7 @@ import { BehaviorEditorConfig } from "./editor/Types";
  */
 export class ScaleBehavior implements IEmitterBehavior {
   public static type = "scale";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   public order = BehaviorOrder.Normal;
   private list: PropertyList<number>;
@@ -80,7 +80,7 @@ export class ScaleBehavior implements IEmitterBehavior {
  */
 export class StaticScaleBehavior implements IEmitterBehavior {
   public static type = "scaleStatic";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   public order = BehaviorOrder.Normal;
   private min: number;

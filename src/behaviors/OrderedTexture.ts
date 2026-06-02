@@ -3,7 +3,7 @@ import { Texture } from "pixi.js";
 import { Particle } from "../Particle";
 import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
 import { GetTextureFromString } from "../ParticleUtils";
-import { BehaviorEditorConfig } from "./editor/Types";
+import type { BehaviorConfigSchema } from "./BehaviorConfigSchema";
 
 /**
  * A Texture behavior that assigns a texture to each particle from its list, in order, before looping around to the first
@@ -21,7 +21,7 @@ import { BehaviorEditorConfig } from "./editor/Types";
  */
 export class OrderedTextureBehavior implements IEmitterBehavior {
   public static type = "textureOrdered";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   public order = BehaviorOrder.Normal;
   private textures: Texture[];

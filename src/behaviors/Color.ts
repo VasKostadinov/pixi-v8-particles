@@ -4,7 +4,7 @@ import { Color, combineRGBComponents } from "../ParticleUtils";
 import { PropertyList } from "../PropertyList";
 import { PropertyNode, ValueList } from "../PropertyNode";
 import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
-import { BehaviorEditorConfig } from "./editor/Types";
+import type { BehaviorConfigSchema } from "./BehaviorConfigSchema";
 
 /**
  * A Color behavior that applies an interpolated or stepped list of values to the particle's tint property.
@@ -23,7 +23,7 @@ import { BehaviorEditorConfig } from "./editor/Types";
  */
 export class ColorBehavior implements IEmitterBehavior {
   public static type = "color";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   public order = BehaviorOrder.Normal;
   private list: PropertyList<Color>;
@@ -68,7 +68,7 @@ export class ColorBehavior implements IEmitterBehavior {
  */
 export class StaticColorBehavior implements IEmitterBehavior {
   public static type = "colorStatic";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   public order = BehaviorOrder.Normal;
   private value: number;

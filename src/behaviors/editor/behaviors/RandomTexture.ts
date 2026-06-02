@@ -1,6 +1,6 @@
 import { RandomTextureBehavior } from "../../RandomTexture";
 
-RandomTextureBehavior.editorConfig = {
+RandomTextureBehavior.configSchema = {
   category: "art",
   title: "Random Texture",
   props: [

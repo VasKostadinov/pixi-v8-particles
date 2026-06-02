@@ -1,6 +1,6 @@
 import { SingleTextureBehavior } from "../../SingleTexture";
 
-SingleTextureBehavior.editorConfig = {
+SingleTextureBehavior.configSchema = {
   category: "art",
   title: "Single Texture",
   props: [

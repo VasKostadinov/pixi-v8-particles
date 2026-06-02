@@ -1,7 +1,7 @@
 import { Particle } from "../Particle";
 import { DEG_TO_RADS } from "../ParticleUtils";
 import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
-import { BehaviorEditorConfig } from "./editor/Types";
+import type { BehaviorConfigSchema } from "./BehaviorConfigSchema";
 
 /**
  * A Rotation behavior that aligns each particle's rotation with its current velocity vector,
@@ -21,7 +21,7 @@ import { BehaviorEditorConfig } from "./editor/Types";
  */
 export class VelocityRotationBehavior implements IEmitterBehavior {
   public static type = "rotationVelocity";
-  public static editorConfig?: BehaviorEditorConfig;
+  public static configSchema?: BehaviorConfigSchema;
 
   public order = BehaviorOrder.Late + 1;
   private offset: number;

@@ -1,4 +1,4 @@
-import type { ObjectProperty, ListProperty } from "../../src/behaviors/editor/Types";
+import type { ObjectProperty, ListProperty } from "../../src/behaviors/BehaviorConfigSchema";
 import { Torus } from "../../src/behaviors/shapes/Torus";
 import { Rectangle } from "../../src/behaviors/shapes/Rectangle";
 import { PolygonalChain } from "../../src/behaviors/shapes/PolygonalChain";
@@ -7,18 +7,18 @@ import { buildDefault } from "./behaviorRegistry";
 
 export interface ShapeMeta {
   type: string;
-  editorConfig: ObjectProperty | ListProperty;
+  configSchema: ObjectProperty | ListProperty;
   defaultData: () => unknown;
 }
 
 const shapeClasses: SpawnShapeClass[] = [Torus, Rectangle, PolygonalChain];
 
 export const shapeMetas: ShapeMeta[] = shapeClasses
-  .filter((c) => !!c.editorConfig)
+  .filter((c) => !!c.configSchema)
   .map((c) => ({
     type: c.type,
-    editorConfig: c.editorConfig!,
-    defaultData: () => defaultDataForShape(c.editorConfig!),
+    configSchema: c.configSchema!,
+    defaultData: () => defaultDataForShape(c.configSchema!),
   }));
 
 export const shapeMetaByType = new Map<string, ShapeMeta>(shapeMetas.map((m) => [m.type, m]));

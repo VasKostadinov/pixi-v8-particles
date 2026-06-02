@@ -1,6 +1,6 @@
 import { BurstSpawnBehavior } from "../../BurstSpawn";
 
-BurstSpawnBehavior.editorConfig = {
+BurstSpawnBehavior.configSchema = {
   category: "spawn",
   title: "Burst",
   props: [

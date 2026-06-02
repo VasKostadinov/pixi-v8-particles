@@ -6,7 +6,7 @@ import type {
   PointProperty,
   SelectProperty,
   TextProperty,
-} from "../../src/behaviors/editor/Types";
+} from "../../src/behaviors/BehaviorConfigSchema";
 import type { EditorCtx } from "./ctx";
 import { el, on } from "./dom";
 import * as textureLoader from "./textureLoader";

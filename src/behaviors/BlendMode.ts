@@ -2,7 +2,7 @@
 import { Particle } from "../Particle";
 import { getBlendMode } from "../ParticleUtils";
 import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
-import { BehaviorEditorConfig } from "./editor/Types";
+import type { BehaviorConfigSchema } from "./BehaviorConfigSchema";
 
 /**
  * A Blend Mode behavior that applies a blend mode value to the particle at initialization.
@@ -19,7 +19,7 @@ import { BehaviorEditorConfig } from "./editor/Types";
  */
 export class BlendModeBehavior implements IEmitterBehavior {
   public static type = "blendMode";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   public order = BehaviorOrder.Normal;
   private value: string;

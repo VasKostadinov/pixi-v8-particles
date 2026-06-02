@@ -3,8 +3,8 @@ import * as spawnShapes from "./shapes";
 export { spawnShapes };
 export * from "./Behaviors";
 
-import * as editor from "./editor/Types";
-export { editor };
+import * as configSchema from "./BehaviorConfigSchema";
+export { configSchema };
 
 // export all of the individual behaviors
 export * from "./AccelerationMovement";

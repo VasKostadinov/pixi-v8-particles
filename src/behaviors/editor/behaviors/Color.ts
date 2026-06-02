@@ -1,6 +1,6 @@
 import { ColorBehavior, StaticColorBehavior } from "../../Color";
 
-ColorBehavior.editorConfig = {
+ColorBehavior.configSchema = {
   category: "color",
   title: "Interpolated Color",
   props: [
@@ -14,7 +14,7 @@ ColorBehavior.editorConfig = {
   ],
 };
 
-StaticColorBehavior.editorConfig = {
+StaticColorBehavior.configSchema = {
   category: "color",
   title: "Static Color",
   props: [

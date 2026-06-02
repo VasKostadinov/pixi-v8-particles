@@ -2,7 +2,7 @@
 import { Particle } from "../Particle";
 import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
 import { DEG_TO_RADS, rotatePoint } from "../ParticleUtils";
-import { BehaviorEditorConfig } from "./editor/Types";
+import type { BehaviorConfigSchema } from "./BehaviorConfigSchema";
 
 /**
  * A Spawn behavior that sends particles out from a single point or ring, and is capable of evenly spacing
@@ -22,7 +22,7 @@ import { BehaviorEditorConfig } from "./editor/Types";
  */
 export class BurstSpawnBehavior implements IEmitterBehavior {
   public static type = "spawnBurst";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   order = BehaviorOrder.Spawn;
   private spacing: number;

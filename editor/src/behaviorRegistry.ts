@@ -1,5 +1,5 @@
 import type { IEmitterBehaviorClass } from "../../src/behaviors/Behaviors";
-import type { BehaviorEditorConfig, Property } from "../../src/behaviors/editor/Types";
+import type { BehaviorConfigSchema, Property } from "../../src/behaviors/BehaviorConfigSchema";
 
 import { AccelerationBehavior } from "../../src/behaviors/AccelerationMovement";
 import { AlphaBehavior, StaticAlphaBehavior } from "../../src/behaviors/Alpha";
@@ -27,7 +27,7 @@ import { VelocityRotationBehavior } from "../../src/behaviors/VelocityRotation";
 
 export interface BehaviorMeta {
   type: string;
-  editorConfig: BehaviorEditorConfig;
+  configSchema: BehaviorConfigSchema;
   defaultConfig: () => Record<string, unknown>;
 }
 
@@ -58,11 +58,11 @@ const allClasses: IEmitterBehaviorClass[] = [
 ];
 
 export const behaviorMetas: BehaviorMeta[] = allClasses
-  .filter((c) => !!c.editorConfig)
+  .filter((c) => !!c.configSchema)
   .map((c) => ({
     type: c.type,
-    editorConfig: c.editorConfig!,
-    defaultConfig: () => buildDefault(c.editorConfig!.props),
+    configSchema: c.configSchema!,
+    defaultConfig: () => buildDefault(c.configSchema!.props),
   }));
 
 export const behaviorMetaByType = new Map<string, BehaviorMeta>(
@@ -72,7 +72,7 @@ export const behaviorMetaByType = new Map<string, BehaviorMeta>(
 export function groupBehaviorsByCategory(): Map<string, BehaviorMeta[]> {
   const out = new Map<string, BehaviorMeta[]>();
   for (const m of behaviorMetas) {
-    const cat = m.editorConfig.category;
+    const cat = m.configSchema.category;
     const list = out.get(cat) ?? [];
     list.push(m);
     out.set(cat, list);

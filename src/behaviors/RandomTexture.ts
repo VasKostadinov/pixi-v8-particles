@@ -3,7 +3,7 @@ import { Texture } from "pixi.js";
 import { Particle } from "../Particle";
 import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
 import { GetTextureFromString } from "../ParticleUtils";
-import { BehaviorEditorConfig } from "./editor/Types";
+import type { BehaviorConfigSchema } from "./BehaviorConfigSchema";
 
 /**
  * A Texture behavior that assigns a random texture to each particle from its list.
@@ -21,7 +21,7 @@ import { BehaviorEditorConfig } from "./editor/Types";
  */
 export class RandomTextureBehavior implements IEmitterBehavior {
   public static type = "textureRandom";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   public order = BehaviorOrder.Normal;
   private textures: Texture[];

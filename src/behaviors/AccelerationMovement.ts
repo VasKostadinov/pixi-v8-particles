@@ -3,7 +3,7 @@ import { Point } from "pixi.js";
 import { Particle } from "../Particle";
 import { rotatePoint, scaleBy, length } from "../ParticleUtils";
 import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
-import { BehaviorEditorConfig } from "./editor/Types";
+import type { BehaviorConfigSchema } from "./BehaviorConfigSchema";
 
 /**
  * A Movement behavior that handles movement by applying a constant acceleration to all particles.
@@ -26,7 +26,7 @@ import { BehaviorEditorConfig } from "./editor/Types";
  */
 export class AccelerationBehavior implements IEmitterBehavior {
   public static type = "moveAcceleration";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   // doesn't _really_ need to be late, but doing so ensures that we can override any
   // rotation behavior that is mistakenly added

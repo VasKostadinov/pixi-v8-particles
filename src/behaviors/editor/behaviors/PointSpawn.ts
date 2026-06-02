@@ -1,6 +1,6 @@
 import { PointSpawnBehavior } from "../../PointSpawn";
 
-PointSpawnBehavior.editorConfig = {
+PointSpawnBehavior.configSchema = {
   category: "spawn",
   title: "Point",
   props: [],

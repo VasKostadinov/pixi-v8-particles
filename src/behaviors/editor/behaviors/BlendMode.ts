@@ -39,7 +39,7 @@ function makeReadable(input: string): string {
     .join(" ");
 }
 
-BlendModeBehavior.editorConfig = {
+BlendModeBehavior.configSchema = {
   category: "blend",
   title: "Blend Mode",
   props: [

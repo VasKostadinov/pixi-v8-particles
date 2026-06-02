@@ -5,7 +5,7 @@ import { SpawnShape, SpawnShapeClass } from "./shapes/SpawnShape";
 import { PolygonalChain } from "./shapes/PolygonalChain";
 import { Rectangle } from "./shapes/Rectangle";
 import { Torus } from "./shapes/Torus";
-import { BehaviorEditorConfig } from "./editor/Types";
+import type { BehaviorConfigSchema } from "./BehaviorConfigSchema";
 
 /**
  * A Spawn behavior that places (and optionally rotates) particles according to a
@@ -35,7 +35,7 @@ import { BehaviorEditorConfig } from "./editor/Types";
  */
 export class ShapeSpawnBehavior implements IEmitterBehavior {
   public static type = "spawnShape";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   /**
    * Dictionary of all registered shape classes.

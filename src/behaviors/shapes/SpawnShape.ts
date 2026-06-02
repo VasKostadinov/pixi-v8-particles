@@ -1,5 +1,5 @@
 import { Particle } from "../../Particle";
-import type { ListProperty, ObjectProperty } from "../editor/Types";
+import type { ListProperty, ObjectProperty } from "../BehaviorConfigSchema";
 
 /**
  * Any shape capable of generating a random position for the {@link ShapeSpawnBehavior | shape spawn behavior}.
@@ -24,7 +24,7 @@ export interface SpawnShapeClass {
   /**
    * Configuration for an editor to display. This does not need to exist in production code.
    */
-  editorConfig?: ObjectProperty | ListProperty;
+  configSchema?: ObjectProperty | ListProperty;
   /**
    * The shape constructor itself.
    * @param config The config for the shape, which should match its defined specifications.

@@ -1,6 +1,6 @@
 import { PolygonalChain } from "../../shapes/PolygonalChain";
 
-PolygonalChain.editorConfig = {
+PolygonalChain.configSchema = {
   type: "list",
   name: "",
   title: "PolygonalChain",

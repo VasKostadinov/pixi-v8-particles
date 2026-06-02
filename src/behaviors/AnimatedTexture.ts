@@ -3,7 +3,7 @@ import { Texture } from "pixi.js";
 import { Particle } from "../Particle";
 import { IEmitterBehavior, BehaviorOrder } from "./Behaviors";
 import { GetTextureFromString } from "../ParticleUtils";
-import { BehaviorEditorConfig } from "./editor/Types";
+import type { BehaviorConfigSchema } from "./BehaviorConfigSchema";
 
 /**
  * The format of a single animation to be used on a particle.
@@ -98,7 +98,7 @@ function getTextures(
  */
 export class RandomAnimatedTextureBehavior implements IEmitterBehavior {
   public static type = "animatedRandom";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   public order = BehaviorOrder.Normal;
   private anims: ParsedAnimatedParticleArt[];
@@ -192,7 +192,7 @@ export class RandomAnimatedTextureBehavior implements IEmitterBehavior {
  */
 export class SingleAnimatedTextureBehavior implements IEmitterBehavior {
   public static type = "animatedSingle";
-  public static editorConfig: BehaviorEditorConfig = null;
+  public static configSchema: BehaviorConfigSchema = null;
 
   public order = BehaviorOrder.Normal;
   private anim: ParsedAnimatedParticleArt;

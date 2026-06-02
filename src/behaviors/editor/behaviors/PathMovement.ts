@@ -1,6 +1,6 @@
 import { PathBehavior } from "../../PathMovement";
 
-PathBehavior.editorConfig = {
+PathBehavior.configSchema = {
   category: "movement",
   title: "Path Following",
   props: [

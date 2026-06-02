@@ -1,6 +1,6 @@
 import { AccelerationBehavior } from "../../AccelerationMovement";
 
-AccelerationBehavior.editorConfig = {
+AccelerationBehavior.configSchema = {
   category: "movement",
   title: "Acceleration",
   props: [

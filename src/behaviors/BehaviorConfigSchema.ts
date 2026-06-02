@@ -115,7 +115,7 @@ export type Property =
   | SelectProperty
   | SelectSubConfigProperty;
 
-export interface BehaviorEditorConfig {
+export interface BehaviorConfigSchema {
   category:
     | "art"
     | "color"

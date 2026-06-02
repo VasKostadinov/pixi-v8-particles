@@ -1,6 +1,6 @@
 import { Rectangle } from "../../shapes/Rectangle";
 
-Rectangle.editorConfig = {
+Rectangle.configSchema = {
   type: "object",
   name: "",
   title: "Rectangle",

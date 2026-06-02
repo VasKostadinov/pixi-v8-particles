@@ -1,6 +1,6 @@
 import { SpeedBehavior, StaticSpeedBehavior } from "../../SpeedMovement";
 
-SpeedBehavior.editorConfig = {
+SpeedBehavior.configSchema = {
   category: "movement",
   title: "Interpolated Speed",
   props: [
@@ -26,7 +26,7 @@ SpeedBehavior.editorConfig = {
   ],
 };
 
-StaticSpeedBehavior.editorConfig = {
+StaticSpeedBehavior.configSchema = {
   category: "movement",
   title: "Static Speed",
   props: [

@@ -1,11 +1,4 @@
-import {
-  Application,
-  Cache,
-  Container,
-  ParticleContainer,
-  Texture,
-  type Ticker,
-} from "pixi.js";
+import { Application, Cache, Container, ParticleContainer, Texture, type Ticker } from "pixi.js";
 import { Emitter } from "../../src/Emitter";
 import type { EmitterConfigV3 } from "../../src/EmitterConfig";
 

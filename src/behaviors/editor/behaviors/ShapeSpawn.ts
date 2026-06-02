@@ -1,6 +1,6 @@
 import { ShapeSpawnBehavior } from "../../ShapeSpawn";
 
-ShapeSpawnBehavior.editorConfig = {
+ShapeSpawnBehavior.configSchema = {
   category: "spawn",
   title: "Shape",
   props: [
