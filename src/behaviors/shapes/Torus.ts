@@ -17,7 +17,7 @@ import { SpawnShape } from "./SpawnShape";
  *          x: 0,
  *          y: 0,
  *          innerRadius: 10,
- *          rotation: true
+ *          affectRotation: true
  *     }
  * }
  * ```

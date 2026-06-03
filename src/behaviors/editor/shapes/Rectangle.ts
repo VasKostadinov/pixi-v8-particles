@@ -42,5 +42,23 @@ Rectangle.configSchema = {
         "If enabled, particles spawn only along the perimeter (frame) of the rectangle instead of inside it.",
       default: false,
     },
+    {
+      type: "boolean",
+      name: "affectRotation",
+      title: "Aim Outward",
+      description:
+        "When spawning on edges, rotate each particle to point outward, perpendicular to the edge it spawned on.",
+      default: false,
+    },
+    {
+      type: "number",
+      name: "spread",
+      title: "Spread",
+      description:
+        "Random spread (in degrees) added to the outward rotation so the stream fans out instead of moving as a rigid sheet.",
+      default: 0,
+      min: 0,
+      max: 360,
+    },
   ],
 };

@@ -39,7 +39,7 @@ Torus.configSchema = {
     },
     {
       type: "boolean",
-      name: "rotation",
+      name: "affectRotation",
       title: "Apply Rotation",
       description:
         "If particles should be rotated to face/move away from the center of the circle.",

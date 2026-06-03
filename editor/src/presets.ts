@@ -58,7 +58,7 @@ export const presets: Preset[] = [
           type: "spawnShape",
           config: {
             type: "torus",
-            data: { x: 0, y: 0, radius: 8, innerRadius: 0, rotation: false },
+            data: { x: 0, y: 0, radius: 8, innerRadius: 0, affectRotation: false },
           },
         },
       ],
@@ -138,7 +138,7 @@ export const presets: Preset[] = [
           type: "spawnShape",
           config: {
             type: "torus",
-            data: { x: 0, y: 0, radius: 12, innerRadius: 0, rotation: false },
+            data: { x: 0, y: 0, radius: 12, innerRadius: 0, affectRotation: false },
           },
         },
       ],
@@ -212,7 +212,7 @@ export const presets: Preset[] = [
           type: "spawnShape",
           config: {
             type: "torus",
-            data: { x: 0, y: 0, radius: 8, innerRadius: 0, rotation: false },
+            data: { x: 0, y: 0, radius: 8, innerRadius: 0, affectRotation: false },
           },
         },
       ],
@@ -328,7 +328,7 @@ export const presets: Preset[] = [
           type: "spawnShape",
           config: {
             type: "torus",
-            data: { x: 0, y: 0, radius: 4, innerRadius: 0, rotation: false },
+            data: { x: 0, y: 0, radius: 4, innerRadius: 0, affectRotation: false },
           },
         },
       ],
@@ -403,7 +403,7 @@ export const presets: Preset[] = [
           type: "spawnShape",
           config: {
             type: "torus",
-            data: { x: 0, y: 0, radius: 30, innerRadius: 0, rotation: false },
+            data: { x: 0, y: 0, radius: 30, innerRadius: 0, affectRotation: false },
           },
         },
       ],
@@ -477,7 +477,7 @@ export const presets: Preset[] = [
           type: "spawnShape",
           config: {
             type: "torus",
-            data: { x: 0, y: 0, radius: 10, innerRadius: 0, rotation: false },
+            data: { x: 0, y: 0, radius: 10, innerRadius: 0, affectRotation: false },
           },
         },
       ],
