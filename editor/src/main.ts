@@ -66,6 +66,19 @@ async function boot(): Promise<void> {
   const applyBg = () => {
     previewSectionEl.dataset.bgMode = bgMode;
     previewSectionEl.style.setProperty("--bg-color", bgColor);
+    // Additive/screen blend modes need an OPAQUE backdrop to composite against.
+    // On a transparent framebuffer, an opaque-black texture background adds its
+    // alpha (add = [ONE, ONE]) into the buffer, turning that region opaque black
+    // and occluding the CSS background — the particle's black box never drops out.
+    // In "solid" mode we therefore make the pixi canvas itself opaque with the
+    // chosen color; checker/grid stay transparent so their CSS pattern shows
+    // through (those modes are for inspecting transparency, not blended looks).
+    if (bgMode === "solid") {
+      app.renderer.background.color = bgColor;
+      app.renderer.background.alpha = 1;
+    } else {
+      app.renderer.background.alpha = 0;
+    }
     bgModeBtn.dataset.mode = bgMode;
     bgModeBtn.style.setProperty("--c", bgColor);
     bgModeColorInput.value = bgColor;

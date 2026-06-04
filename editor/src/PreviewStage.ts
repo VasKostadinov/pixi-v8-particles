@@ -57,7 +57,6 @@ export class PreviewStage {
     const resolved = prepareForRuntime(config);
     this.currentConfig = resolved;
     this.ensureParentFor(resolved);
-    this.applyContainerBlendMode(resolved);
     try {
       this.emitter = new Emitter(this.parent, resolved);
     } catch (err) {
@@ -67,28 +66,12 @@ export class PreviewStage {
   }
 
   /**
-   * For the fast ParticleContainer path, apply the BlendMode behavior's mode
-   * to the container itself (per-particle blendMode is ignored by
-   * ParticleContainer). On the Sprite path the behavior assigns per-particle
-   * blend modes directly, and the container stays normal.
-   */
-  private applyContainerBlendMode(config: EmitterConfigV3) {
-    const blend = config.behaviors.find((b) => b.type === "blendMode");
-    const cfg = blend?.config as { blendMode?: string; perParticle?: boolean } | undefined;
-    const wantContainerBlend =
-      this.parent instanceof ParticleContainer &&
-      !!cfg &&
-      !cfg.perParticle &&
-      !!cfg.blendMode &&
-      cfg.blendMode !== "normal";
-    (this.parent as Container).blendMode = wantContainerBlend
-      ? (cfg!.blendMode as Container["blendMode"])
-      : "normal";
-  }
-
-  /**
-   * ParticleContainer can't render per-particle blend modes. If the config needs one,
-   * fall back to a plain Container (Sprite-based Particle path); otherwise keep the
+   * ParticleContainer can't render per-particle blend modes, and pixi v8's
+   * ParticleContainer samples a single shared texture latched from the first
+   * particle (with its blend derived from that one texture's premultiply mode),
+   * which renders blended emitters incorrectly. If the config needs any
+   * non-normal blend mode (or anything else listed in needsSpriteBackend), fall
+   * back to a plain Container (Sprite-based Particle path); otherwise keep the
    * fast ParticleContainer.
    */
   private ensureParentFor(config: EmitterConfigV3) {
@@ -125,17 +108,18 @@ export class PreviewStage {
 /* ------------------------------------------------------------------ */
 function needsSpriteBackend(config: EmitterConfigV3): boolean {
   // ParticleContainer (the v8 fast path) batches against a single TextureSource
-  // and ignores per-particle blendMode. Two situations require switching to a
+  // and ignores per-particle blendMode. Three situations require switching to a
   // plain Container with Sprite-based particles:
-  //   - per-particle blend modes (opt-in via BlendMode.perParticle). When off
-  //     the editor sets the blend mode on the ParticleContainer instead.
+  //   - any non-normal blend mode. ParticleContainer derives its blend from a
+  //     single shared texture latched from the first particle, so "add"/"screen"
+  //     don't reliably remove black backgrounds the way per-Sprite blend does.
   //   - multiple textures loaded as separate sources (no atlas in the editor),
   //     where ParticleContainer would clamp to one source and render only one
   //     of the textures regardless of which the behavior assigned.
   for (const b of config.behaviors) {
     if (b.type === "blendMode") {
-      const cfg = b.config as { blendMode?: string; perParticle?: boolean } | undefined;
-      if (cfg?.perParticle && cfg.blendMode && cfg.blendMode !== "normal") return true;
+      const cfg = b.config as { blendMode?: string } | undefined;
+      if (cfg?.blendMode && cfg.blendMode !== "normal") return true;
     }
     if (b.type === "textureRandom" || b.type === "textureOrdered") {
       const textures = (b.config as { textures?: unknown[] } | undefined)?.textures;

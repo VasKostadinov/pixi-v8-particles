@@ -56,16 +56,5 @@ BlendModeBehavior.configSchema = {
         label: makeReadable(value),
       })),
     },
-    {
-      type: "boolean",
-      name: "perParticle",
-      title: "Per-particle",
-      description:
-        "Off (recommended): apply the blend mode to the whole particle container, keeping the" +
-        " fast ParticleContainer rendering path. Turn on only if you need different blend modes" +
-        " for different particles in the same emitter — the editor will switch to a slower" +
-        " Sprite-based renderer.",
-      default: false,
-    },
   ],
 };
