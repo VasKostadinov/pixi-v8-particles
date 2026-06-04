@@ -12,7 +12,9 @@
         <div class="brand">pixi-v8-particles · editor</div>
         <div class="actions">
           <button data-action="undo" class="ghost" title="Undo (Ctrl+Z)" disabled>Undo</button>
-          <button data-action="redo" class="ghost" title="Redo (Ctrl+Shift+Z)" disabled>Redo</button>
+          <button data-action="redo" class="ghost" title="Redo (Ctrl+Shift+Z)" disabled>
+            Redo
+          </button>
           <div class="preset-wrap">
             <button id="preset-btn" type="button" class="ghost" title="Load a preset">
               Preset <span class="preset-chev" aria-hidden="true">▾</span>
@@ -87,6 +89,13 @@
           </div>
           <div id="preview-hud">
             <span id="fps">—</span>
+            <span class="dim">·</span>
+
+            <span
+              id="time-scale"
+              title="Playback speed — ↑ reset to 1× · → faster · ← slower · ↓ freeze (click to reset)"
+              >1×</span
+            >
             <span class="dim">·</span>
             <span id="particle-count">0 particles</span>
           </div>

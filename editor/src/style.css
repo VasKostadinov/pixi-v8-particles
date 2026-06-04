@@ -183,6 +183,15 @@ select {
   color: var(--fg-dim);
   margin: 0 6px;
 }
+/* The speed readout is interactive (click to reset to 1×); re-enable pointer
+   events the HUD container otherwise suppresses. */
+#time-scale {
+  pointer-events: auto;
+  cursor: pointer;
+}
+#time-scale.scaled {
+  color: var(--fg);
+}
 
 #bg-mode {
   position: absolute;

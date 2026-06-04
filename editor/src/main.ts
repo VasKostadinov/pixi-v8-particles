@@ -27,6 +27,7 @@ async function boot(): Promise<void> {
   const toastEl = document.getElementById("toast");
   const hudCount = document.getElementById("particle-count");
   const hudFps = document.getElementById("fps");
+  const hudTimeScale = document.getElementById("time-scale");
   const bgModeBtn = document.getElementById("bg-mode");
   const bgModePopover = document.getElementById("bg-mode-popover");
   const bgModeColorInput =
@@ -42,6 +43,7 @@ async function boot(): Promise<void> {
     !(toastEl instanceof HTMLElement) ||
     !(hudCount instanceof HTMLElement) ||
     !(hudFps instanceof HTMLElement) ||
+    !(hudTimeScale instanceof HTMLElement) ||
     !(bgModeBtn instanceof HTMLButtonElement) ||
     !(bgModePopover instanceof HTMLElement) ||
     !(bgModeColorInput instanceof HTMLInputElement) ||
@@ -222,6 +224,7 @@ async function boot(): Promise<void> {
   wireTopbar(topbarEl, config, ctx, history);
   attachGlobalDrop(workspaceEl, config, ctx);
   wireHistoryShortcuts(history);
+  wireTimeScaleControls(stage, hudTimeScale);
 
   // HUD: fps + alive particle count
   let frame = 0;
@@ -293,6 +296,67 @@ function wireHistoryShortcuts(history: History): void {
       ev.preventDefault();
       history.redo();
     }
+  });
+}
+
+function wireTimeScaleControls(stage: PreviewStage, readout: HTMLElement): void {
+  const MAX = 8;
+  const MIN_FINE = 0.1;
+  // Sub-1× moves in 0.1 steps; ≥1× moves in whole steps. Round the fine zone so
+  // repeated 0.1 additions don't drift (0.1 + 0.2 → 0.30000000000000004).
+  const round1 = (n: number) => Math.round(n * 10) / 10;
+
+  const format = (s: number): string => {
+    if (s === 0) return "paused";
+    return Number.isInteger(s) ? `${s}×` : `${s.toFixed(1)}×`;
+  };
+
+  const apply = (next: number) => {
+    const clamped = Math.min(MAX, Math.max(0, next));
+    stage.setTimeScale(clamped);
+    readout.textContent = format(clamped);
+    readout.classList.toggle("scaled", clamped !== 1);
+  };
+
+  const faster = (s: number) => (s >= 1 ? s + 1 : round1(s + 0.1));
+  // Left never reaches 0 — only ↓ (freeze) does; floor the fine zone at 0.1×.
+  const slower = (s: number) => (s > 1 ? s - 1 : Math.max(MIN_FINE, round1(s - 0.1)));
+
+  // Clicking the readout is the mouse equivalent of ↑ (reset to 1×).
+  readout.addEventListener("click", () => apply(1));
+
+  const isFormControl = (node: Element | null): boolean => {
+    if (!(node instanceof HTMLElement)) return false;
+    return (
+      node instanceof HTMLInputElement ||
+      node instanceof HTMLTextAreaElement ||
+      node instanceof HTMLSelectElement ||
+      node.isContentEditable
+    );
+  };
+
+  window.addEventListener("keydown", (ev) => {
+    // Let focused sliders / number fields keep their native arrow behavior.
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    if (isFormControl(document.activeElement)) return;
+    const current = stage.getTimeScale();
+    switch (ev.key) {
+      case "ArrowUp":
+        apply(1);
+        break;
+      case "ArrowDown":
+        apply(0);
+        break;
+      case "ArrowRight":
+        apply(faster(current));
+        break;
+      case "ArrowLeft":
+        apply(slower(current));
+        break;
+      default:
+        return;
+    }
+    ev.preventDefault();
   });
 }
 

@@ -8,6 +8,7 @@ export class PreviewStage {
   private followMouse = false;
   private mouseLocal: { x: number; y: number } | null = null;
   private currentConfig: EmitterConfigV3 | null = null;
+  private timeScale = 1;
 
   constructor(private app: Application) {
     this.parent = new ParticleContainer();
@@ -15,7 +16,10 @@ export class PreviewStage {
     this.relayout();
     app.ticker.add((time: Ticker) => {
       try {
-        this.update(time.deltaMS * 0.001);
+        // Scale the emitter's clock for slow-mo / fast-forward. At 0 the emitter
+        // advances by zero each frame (frozen: no movement, no new spawns) while
+        // already-alive particles stay on screen.
+        this.update(time.deltaMS * 0.001 * this.timeScale);
       } catch (err) {
         console.error("emitter update failed", err);
       }
@@ -39,6 +43,14 @@ export class PreviewStage {
   relayout() {
     this.parent.x = this.app.renderer.width * 0.5;
     this.parent.y = this.app.renderer.height * 0.5;
+  }
+
+  setTimeScale(scale: number) {
+    this.timeScale = scale;
+  }
+
+  getTimeScale(): number {
+    return this.timeScale;
   }
 
   setFollowMouse(on: boolean) {
