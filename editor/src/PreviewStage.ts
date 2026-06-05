@@ -68,7 +68,7 @@ export class PreviewStage {
     }
     const resolved = prepareForRuntime(config);
     this.currentConfig = resolved;
-    this.ensureParentFor(resolved);
+    this.rebuildParent(resolved);
     try {
       this.emitter = new Emitter(this.parent, resolved);
     } catch (err) {
@@ -78,19 +78,22 @@ export class PreviewStage {
   }
 
   /**
-   * ParticleContainer can't render per-particle blend modes, and pixi v8's
-   * ParticleContainer samples a single shared texture latched from the first
-   * particle (with its blend derived from that one texture's premultiply mode),
-   * which renders blended emitters incorrectly. If the config needs any
-   * non-normal blend mode (or anything else listed in needsSpriteBackend), fall
-   * back to a plain Container (Sprite-based Particle path); otherwise keep the
-   * fast ParticleContainer.
+   * Rebuild the particle parent from scratch on every config apply. The backend
+   * depends on the config: a non-normal blend mode (or anything else listed in
+   * needsSpriteBackend) needs a plain Container with Sprite-based particles,
+   * because pixi v8's ParticleContainer can't render per-particle blend modes
+   * and samples a single shared texture latched from the first particle (with
+   * its blend derived from that one texture's premultiply mode), which renders
+   * blended emitters incorrectly. Otherwise we use the fast ParticleContainer.
+   *
+   * We recreate rather than reuse so no latched ParticleContainer state survives
+   * a rebuild — most importantly the shared texture, which would otherwise stay
+   * pinned to Texture.WHITE if the first particle spawned before its image
+   * finished loading. The emitter is already torn down and recreated each apply,
+   * so a fresh container is cheap and keeps the two in lockstep.
    */
-  private ensureParentFor(config: EmitterConfigV3) {
+  private rebuildParent(config: EmitterConfigV3) {
     const wantSpritePath = needsSpriteBackend(config);
-    const isParticleContainer = this.parent instanceof ParticleContainer;
-    if (wantSpritePath === !isParticleContainer) return;
-
     this.app.stage.removeChild(this.parent);
     this.parent.destroy({ children: true });
     this.parent = wantSpritePath ? new Container() : new ParticleContainer();
