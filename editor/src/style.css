@@ -348,6 +348,94 @@ select {
     linear-gradient(90deg, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
   background-size: 6px 6px;
 }
+.bg-mode-sep {
+  height: 1px;
+  background: var(--border-strong);
+  margin: 4px 2px;
+}
+.bg-image-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+.bg-image-row.drag-over {
+  background: var(--panel);
+  outline: 1px dashed var(--accent);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+.bg-image-row .bg-mode-label {
+  flex: 0 0 auto;
+  color: var(--fg-muted);
+}
+.bg-image-control {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  min-width: 0;
+}
+.bg-image-pick {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  color: var(--fg-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.bg-image-pick[hidden] {
+  display: none;
+}
+.bg-image-pick:hover {
+  border-color: var(--accent);
+  color: var(--fg);
+}
+.bg-image-pick input[type="file"] {
+  display: none;
+}
+.bg-image-set {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.bg-image-set[hidden] {
+  display: none;
+}
+.bg-image-thumb {
+  width: 22px;
+  height: 18px;
+  border-radius: 3px;
+  border: 1px solid var(--border-strong);
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+.bg-image-name {
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--fg-muted);
+}
+.bg-image-clear {
+  border: none;
+  background: transparent;
+  color: var(--fg-muted);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.bg-image-clear:hover {
+  color: var(--fg);
+  background: var(--panel);
+}
 
 #follow-mouse {
   position: absolute;

@@ -1,4 +1,12 @@
-import { Application, Cache, Container, ParticleContainer, Texture, type Ticker } from "pixi.js";
+import {
+  Application,
+  Cache,
+  Container,
+  ParticleContainer,
+  Sprite,
+  Texture,
+  type Ticker,
+} from "pixi.js";
 import { Emitter } from "../../src/Emitter";
 import type { EmitterConfigV3 } from "../../src/EmitterConfig";
 
@@ -9,6 +17,7 @@ export class PreviewStage {
   private mouseLocal: { x: number; y: number } | null = null;
   private currentConfig: EmitterConfigV3 | null = null;
   private timeScale = 1;
+  private bgSprite: Sprite | null = null;
 
   constructor(private app: Application) {
     this.parent = new ParticleContainer();
@@ -43,6 +52,10 @@ export class PreviewStage {
   relayout() {
     this.parent.x = this.app.renderer.width * 0.5;
     this.parent.y = this.app.renderer.height * 0.5;
+    if (this.bgSprite) {
+      this.bgSprite.x = this.app.renderer.width * 0.5;
+      this.bgSprite.y = this.app.renderer.height * 0.5;
+    }
   }
 
   setTimeScale(scale: number) {
@@ -51,6 +64,33 @@ export class PreviewStage {
 
   getTimeScale(): number {
     return this.timeScale;
+  }
+
+  /**
+   * Set or clear the centered, non-stretched preview background image. The image
+   * is a pixi Sprite kept at the bottom of app.stage (behind the particle parent)
+   * so it composites correctly in every bg mode — including "solid", where the
+   * canvas is opaque and a CSS-div backdrop would be occluded. Passing null
+   * removes the sprite (but not the texture, which main.ts owns).
+   */
+  setBackgroundImage(texture: Texture | null) {
+    if (!texture) {
+      if (this.bgSprite) {
+        this.app.stage.removeChild(this.bgSprite);
+        this.bgSprite.destroy(); // sprite only — leaves the texture intact
+        this.bgSprite = null;
+      }
+      return;
+    }
+    if (!this.bgSprite) {
+      this.bgSprite = new Sprite(texture);
+      this.bgSprite.anchor.set(0.5);
+    } else {
+      this.bgSprite.texture = texture;
+    }
+    this.bgSprite.scale.set(1); // non-stretched: native pixel size
+    this.app.stage.addChildAt(this.bgSprite, 0); // keep behind the particle parent
+    this.relayout();
   }
 
   setFollowMouse(on: boolean) {
@@ -98,6 +138,7 @@ export class PreviewStage {
     this.parent.destroy({ children: true });
     this.parent = wantSpritePath ? new Container() : new ParticleContainer();
     this.app.stage.addChild(this.parent);
+    if (this.bgSprite) this.app.stage.setChildIndex(this.bgSprite, 0);
     this.relayout();
   }
 

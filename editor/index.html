@@ -86,6 +86,29 @@
               <span class="bg-mode-label">Grid</span>
               <span class="bg-mode-preview bg-mode-preview-grid" aria-hidden="true"></span>
             </button>
+            <div class="bg-mode-sep" aria-hidden="true"></div>
+            <div id="bg-image-row" class="bg-image-row">
+              <span class="bg-mode-label">Image</span>
+              <div class="bg-image-control">
+                <label class="bg-image-pick" id="bg-image-empty">
+                  <span>Drop or choose…</span>
+                  <input type="file" accept="image/*" id="bg-image-input" />
+                </label>
+                <div class="bg-image-set" id="bg-image-set" hidden>
+                  <span class="bg-image-thumb" id="bg-image-thumb" aria-hidden="true"></span>
+                  <span class="bg-image-name" id="bg-image-name"></span>
+                  <button
+                    type="button"
+                    class="bg-image-clear"
+                    id="bg-image-clear"
+                    title="Remove background image"
+                    aria-label="Remove background image"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
           <div id="preview-hud">
             <span id="fps">—</span>

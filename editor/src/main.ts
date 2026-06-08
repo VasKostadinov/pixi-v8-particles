@@ -1,4 +1,4 @@
-import { Application } from "pixi.js";
+import { Application, Texture } from "pixi.js";
 import "pixi.js/advanced-blend-modes";
 import { registerAllBehaviors } from "../../src";
 import "../../src/behaviors/editor";
@@ -33,6 +33,13 @@ async function boot(): Promise<void> {
   const bgModeColorInput =
     bgModePopover?.querySelector<HTMLInputElement>('input[type="color"]') ?? null;
   const followMouseBtn = document.getElementById("follow-mouse");
+  const bgImageRow = document.getElementById("bg-image-row");
+  const bgImageInput = document.getElementById("bg-image-input");
+  const bgImageEmpty = document.getElementById("bg-image-empty");
+  const bgImageSet = document.getElementById("bg-image-set");
+  const bgImageThumb = document.getElementById("bg-image-thumb");
+  const bgImageName = document.getElementById("bg-image-name");
+  const bgImageClear = document.getElementById("bg-image-clear");
   if (
     !(previewEl instanceof HTMLElement) ||
     !(previewSectionEl instanceof HTMLElement) ||
@@ -47,7 +54,14 @@ async function boot(): Promise<void> {
     !(bgModeBtn instanceof HTMLButtonElement) ||
     !(bgModePopover instanceof HTMLElement) ||
     !(bgModeColorInput instanceof HTMLInputElement) ||
-    !(followMouseBtn instanceof HTMLButtonElement)
+    !(followMouseBtn instanceof HTMLButtonElement) ||
+    !(bgImageRow instanceof HTMLElement) ||
+    !(bgImageInput instanceof HTMLInputElement) ||
+    !(bgImageEmpty instanceof HTMLElement) ||
+    !(bgImageSet instanceof HTMLElement) ||
+    !(bgImageThumb instanceof HTMLElement) ||
+    !(bgImageName instanceof HTMLElement) ||
+    !(bgImageClear instanceof HTMLButtonElement)
   ) {
     throw new Error("Editor DOM scaffold missing");
   }
@@ -170,6 +184,74 @@ async function boot(): Promise<void> {
   }).observe(previewEl);
 
   const toast = createToast(toastEl);
+
+  // --- Custom preview background image (editor-only, session-only) ---
+  // Rendered as a pixi Sprite behind the particles by PreviewStage. Not part of
+  // the emitter config, history, or localStorage — it is cleared on reload.
+  let bgImageUrl: string | null = null; // active object URL, revoked on replace/clear
+
+  const setBgImageEmpty = () => {
+    bgImageEmpty.hidden = false;
+    bgImageSet.hidden = true;
+    bgImageName.textContent = "";
+    bgImageThumb.style.backgroundImage = "";
+  };
+
+  const clearBgImage = () => {
+    stage.setBackgroundImage(null);
+    if (bgImageUrl) {
+      URL.revokeObjectURL(bgImageUrl);
+      bgImageUrl = null;
+    }
+    bgImageInput.value = "";
+    setBgImageEmpty();
+  };
+
+  const setBgImageFromFile = (file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      stage.setBackgroundImage(Texture.from(img));
+      if (bgImageUrl) URL.revokeObjectURL(bgImageUrl);
+      bgImageUrl = url;
+      bgImageEmpty.hidden = true;
+      bgImageSet.hidden = false;
+      bgImageName.textContent = file.name;
+      bgImageThumb.style.backgroundImage = `url("${url}")`;
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      toast(`Could not load background image: ${file.name}`, "err");
+    };
+    img.src = url;
+  };
+
+  bgImageInput.addEventListener("change", () => {
+    const file = bgImageInput.files?.[0];
+    if (file) setBgImageFromFile(file);
+  });
+  bgImageClear.addEventListener("click", (e) => {
+    e.stopPropagation();
+    clearBgImage();
+  });
+  // Scoped drop target: stopPropagation so the global texture-drop handler
+  // (attachGlobalDrop) does not also add the file as a particle texture.
+  bgImageRow.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    bgImageRow.classList.add("drag-over");
+  });
+  bgImageRow.addEventListener("dragleave", () => {
+    bgImageRow.classList.remove("drag-over");
+  });
+  bgImageRow.addEventListener("drop", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    bgImageRow.classList.remove("drag-over");
+    const file = e.dataTransfer?.files?.[0];
+    if (file) setBgImageFromFile(file);
+  });
 
   textureLoader.subscribeLoadErrors(({ url, reason }) => {
     if (reason === "cors") {
