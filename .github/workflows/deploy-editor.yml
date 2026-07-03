@@ -28,7 +28,7 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run build
+      - run: npm run build:editor
 
       - uses: actions/configure-pages@v5
 
