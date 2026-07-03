@@ -734,4 +734,84 @@ export const presets: Preset[] = [
       ],
     }),
   },
+  {
+    // Single stream from center + a spinning emitter: successive particles launch at rotating
+    // angles, so the stream traces a clean, gapped spiral swirl that rotates over time.
+    // spin(deg/s) * lifetime / 360 ≈ how many times the arms wrap around the center.
+    id: "spiral",
+    name: "Spiral",
+    build: () => ({
+      lifetime: { min: 2.3, max: 2.6 },
+      frequency: 0.004,
+      particlesPerWave: 1,
+      spawnChance: 1,
+      emitterLifetime: -1,
+      maxParticles: 800,
+      addAtBack: false,
+      pos: { x: 0, y: 0 },
+      emit: true,
+      autoUpdate: false,
+      spin: 520,
+      behaviors: [
+        {
+          type: "alpha",
+          config: {
+            alpha: {
+              list: [
+                { time: 0, value: 0 },
+                { time: 0.08, value: 1 },
+                { time: 0.85, value: 1 },
+                { time: 1, value: 0 },
+              ],
+            },
+          },
+        },
+        {
+          type: "scale",
+          config: {
+            scale: {
+              list: [
+                { time: 0, value: 0.15 },
+                { time: 1, value: 11 },
+              ],
+            },
+            minMult: 0.9,
+          },
+        },
+        {
+          type: "color",
+          config: {
+            color: {
+              list: [
+                { time: 0, value: "#eaf4ff" },
+                { time: 1, value: "#ffffff" },
+              ],
+            },
+          },
+        },
+        {
+          type: "moveSpeed",
+          config: {
+            speed: {
+              list: [
+                { time: 0, value: 120 },
+                { time: 1, value: 120 },
+              ],
+            },
+            minMult: 1,
+          },
+        },
+        { type: "rotationStatic", config: { min: 0, max: 0 } },
+        { type: "blendMode", config: { blendMode: "add" } },
+        { type: "textureSingle", config: { texture: "" } },
+        {
+          type: "spawnShape",
+          config: {
+            type: "torus",
+            data: { x: 0, y: 0, radius: 0, innerRadius: 0, affectRotation: false },
+          },
+        },
+      ],
+    }),
+  },
 ];

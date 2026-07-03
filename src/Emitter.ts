@@ -98,6 +98,12 @@ export class Emitter {
    */
   protected rotation: number;
   /**
+   * Continuous rotation applied to the emitter each update, in degrees per second. When non-zero,
+   * successive spawn waves are flung out at rotating angles, tracing a spiral. Set from
+   * {@link EmitterConfigV3.spin}.
+   */
+  public spin: number;
+  /**
    * The world position of the emitter's owner, to add spawnPos to when
    * spawning particles. To change this, use updateOwnerPos().
    */
@@ -233,6 +239,7 @@ export class Emitter {
     this.particlesPerWave = 1;
     // emitter properties
     this.rotation = 0;
+    this.spin = 0;
     this.ownerPos = new Point();
     this._prevEmitterPos = new Point();
     this._prevPosIsValid = false;
@@ -367,6 +374,7 @@ export class Emitter {
     this.addAtBack = !!config.addAtBack;
     // reset the emitter position and rotation variables
     this.rotation = 0;
+    this.spin = typeof config.spin === "number" ? config.spin : 0;
     this.ownerPos.set(0);
     if (config.pos) {
       this.spawnPos.copyFrom(config.pos);
@@ -591,6 +599,12 @@ export class Emitter {
     // if we don't have a parent to add particles to, then don't do anything.
     // this also works as a isDestroyed check
     if (!this._parent) return;
+
+    // advance continuous emitter spin so successive waves spawn at rotating angles (spiral)
+    if (this.spin && delta > 0) {
+      // wrap into [0, 360) to keep rotation from growing without bound over long sessions
+      this.rotate((((this.rotation + this.spin * delta) % 360) + 360) % 360);
+    }
 
     // == update existing particles ==
 

@@ -154,6 +154,25 @@ export function renderPanel(scroll: HTMLElement, config: EmitterConfigV3, ctx: E
   );
   emitterBody.appendChild(
     makeRow(
+      "Spin",
+      numberControl(
+        config as unknown as Record<string, unknown>,
+        {
+          type: "number",
+          name: "spin",
+          title: "spin",
+          description: "emitter rotation, deg/s (spirals a single stream)",
+          default: 0,
+          min: -1080,
+          max: 1080,
+        },
+        ctx,
+      ),
+      "Continuous emitter rotation in degrees/second — a single stream traces a spiral",
+    ),
+  );
+  emitterBody.appendChild(
+    makeRow(
       "Position",
       pointControl(
         config as unknown as Record<string, unknown>,

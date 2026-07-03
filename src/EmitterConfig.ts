@@ -57,6 +57,12 @@ export interface EmitterConfigV3 {
    * connecting it to update ticks.
    */
   autoUpdate?: boolean;
+  /**
+   * Continuous rotation of the emitter in degrees per second. When non-zero, the emitter's spawn
+   * angle rotates over time, so a single stream of particles traces a spiral (like a Catherine
+   * wheel). Positive values rotate counter-clockwise. If omitted, the emitter does not spin.
+   */
+  spin?: number;
 
   /**
    * The list of behaviors to apply to this emitter. See the behaviors namespace for
