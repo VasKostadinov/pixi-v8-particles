@@ -1,3 +1,4 @@
+import JSON5 from "json5";
 import type { EmitterConfigV3 } from "../../src/EmitterConfig";
 
 export type ParseResult = { ok: true; config: EmitterConfigV3 } | { ok: false; error: string };
@@ -6,9 +7,12 @@ export function parseImport(text: string): ParseResult {
   const trimmed = text.trim();
   if (!trimmed) return { ok: false, error: "Empty input" };
 
+  // JSON5 accepts strict JSON plus JS-object-literal conveniences (unquoted
+  // keys, single quotes, trailing commas, comments) so pasted configs import
+  // without hand-editing.
   let parsed: unknown;
   try {
-    parsed = JSON.parse(trimmed);
+    parsed = JSON5.parse(trimmed);
   } catch (e) {
     return { ok: false, error: `Invalid JSON: ${(e as Error).message}` };
   }
