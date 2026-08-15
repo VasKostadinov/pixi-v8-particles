@@ -121,12 +121,14 @@ function wirePresetPopover(config: EmitterConfigV3, ctx: EditorCtx): void {
     const target = config as unknown as Record<string, unknown>;
     for (const k of Object.keys(target)) delete target[k];
     Object.assign(config, next);
+    // Before applying, so an emitter error toast lands on top of this one
+    // rather than under it.
+    ctx.toast(`Loaded ${preset.name}`, "ok");
     ctx.notifyStructural();
     // renderPanel has now mutated config with ensure() defaults. Snapshot the
     // post-render state so refreshActive can detect later panel edits.
     activePresetId = id;
     activeSnapshot = JSON.stringify(config);
-    ctx.toast(`Loaded ${preset.name}`, "ok");
   };
 
   btn.addEventListener("click", (e) => {
@@ -205,8 +207,11 @@ function openImportDialog(config: EmitterConfigV3, ctx: EditorCtx): void {
     const target = config as unknown as Record<string, unknown>;
     for (const k of Object.keys(target)) delete target[k];
     Object.assign(config, result.config);
-    ctx.notifyStructural();
+    // Toast the success first: applying the config can raise its own error
+    // toast if the emitter rejects it, and that one should be the message left
+    // on screen rather than a stale "imported fine".
     ctx.toast("Imported config", "ok");
+    ctx.notifyStructural();
     cleanup();
     dialog.close();
   };

@@ -150,6 +150,12 @@ async function boot(): Promise<void> {
   });
 
   const stage = new PreviewStage(app);
+  const toast = createToast(toastEl);
+  // Emitter failures are the same failures a consuming game gets — surface them
+  // while the config is being authored instead of burying them in the console.
+  // Attached before the first applyConfig so even a boot-time config failure
+  // raises a toast.
+  stage.onError = (message) => toast(message, "err");
   const config = defaultConfig();
   stage.applyConfig(config);
 
@@ -182,8 +188,6 @@ async function boot(): Promise<void> {
     app.resize();
     stage.relayout();
   }).observe(previewEl);
-
-  const toast = createToast(toastEl);
 
   // --- Custom preview background image (editor-only, session-only) ---
   // Rendered as a pixi Sprite behind the particles by PreviewStage. Not part of

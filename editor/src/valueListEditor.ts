@@ -2,6 +2,9 @@ import type {
   ColorListProperty,
   NumberListProperty,
 } from "../../src/behaviors/BehaviorConfigSchema";
+import type { Color } from "../../src/ParticleUtils";
+import { PropertyList } from "../../src/PropertyList";
+import { PropertyNode } from "../../src/PropertyNode";
 import type { EditorCtx } from "./ctx";
 import { el, on } from "./dom";
 import { booleanEl } from "./controls";
@@ -96,9 +99,52 @@ export function colorListControl(
   return wrap;
 }
 
+/**
+ * Builds a sampler that returns exactly the color the runtime will put on a
+ * particle at a given point in its life.
+ *
+ * This drives the sampler off the library's own PropertyList rather than
+ * reimplementing interpolation here, because the runtime's behavior is full of
+ * detail worth not guessing at: a list whose last stop is before time 1
+ * extrapolates past that stop instead of holding it, a two-stop list whose
+ * second stop is at time >= 1 ignores both stop times and stretches across the
+ * whole lifetime, and channels are clamped when they are packed into the tint.
+ * Sampling through the real thing is the only way the bar can't drift from what
+ * gets exported.
+ */
+function runtimeSampler(list: ValueListShape<string>): (t: number) => string {
+  if (list.list.length === 0) return () => "#ffffff";
+  const props = new PropertyList<Color>(true);
+  props.reset(
+    PropertyNode.createList<string>({
+      list: [...list.list].sort((a, b) => a.time - b.time),
+      isStepped: list.isStepped,
+    }),
+  );
+  return (t) => "#" + (props.interpolate(t) >>> 0).toString(16).padStart(6, "0");
+}
+
+/**
+ * Sample count for the interpolated gradient bar. The runtime's curve is
+ * piecewise linear, but its corners land wherever a channel saturates during
+ * extrapolation, not only on stop times — so the bar samples on a fixed grid
+ * (plus every real stop) instead of trying to solve for them.
+ */
+const GRADIENT_SAMPLES = 32;
+
 function gradientCss(list: ValueListShape<string>): string {
   const sorted = [...list.list].sort((a, b) => a.time - b.time);
-  if (list.isStepped) {
+  if (sorted.length === 0) return "none";
+  // Mirror PropertyList.reset's routing: a list only reaches the runtime's
+  // stepped interpolator when its second stop is before time 1 — otherwise the
+  // "simple" (linear) path wins even with isStepped set, so a stepped 2-stop
+  // [0, 1] list actually lerps in game. Draw hard steps only when the runtime
+  // will step; everything else falls through to the runtime-driven sampler.
+  const steppedAtRuntime = list.isStepped && sorted.length > 1 && sorted[1].time < 1;
+  if (steppedAtRuntime) {
+    // Stepped lists hold each value until the next stop, and the runtime holds
+    // the first and last values outside the stop range — which is also what CSS
+    // does with a gradient that starts late or ends early, so plain stops match.
     const parts: string[] = [];
     for (let i = 0; i < sorted.length; i++) {
       const s = sorted[i];
@@ -109,7 +155,16 @@ function gradientCss(list: ValueListShape<string>): string {
     }
     return `linear-gradient(to right, ${parts.join(", ")})`;
   }
-  const parts = sorted.map((s) => `${s.value} ${(s.time * 100).toFixed(2)}%`);
+
+  const sample = runtimeSampler(list);
+  const times = new Set<number>();
+  for (let i = 0; i <= GRADIENT_SAMPLES; i++) times.add(i / GRADIENT_SAMPLES);
+  for (const s of sorted) {
+    if (s.time > 0 && s.time < 1) times.add(s.time);
+  }
+  const parts = [...times]
+    .sort((a, b) => a - b)
+    .map((t) => `${sample(t)} ${(t * 100).toFixed(2)}%`);
   return `linear-gradient(to right, ${parts.join(", ")})`;
 }
 
@@ -121,7 +176,7 @@ function renderMarkers(
   rebuildMarkers: () => void,
 ) {
   track.innerHTML = "";
-  list.list.forEach((stop, index) => {
+  list.list.forEach((stop) => {
     const m = el("div", {
       class: "grad-marker",
       style: `left:${(stop.time * 100).toFixed(2)}%; --c:${stop.value}`,
@@ -140,8 +195,12 @@ function renderMarkers(
     });
     on(m, "contextmenu", (ev) => {
       ev.preventDefault();
-      if (list.list.length > 1) {
-        list.list.splice(index, 1);
+      // Look the stop up by identity rather than the captured index: dragging
+      // re-sorts the list underneath the markers, so the index this marker was
+      // built with can point at a different stop by now.
+      const at = list.list.indexOf(stop);
+      if (at >= 0 && list.list.length > 1) {
+        list.list.splice(at, 1);
         rebuildMarkers();
         ctx.notifyValue();
       }
@@ -166,6 +225,11 @@ function renderMarkers(
       const rect = track.getBoundingClientRect();
       const t = clamp01((ev.clientX - rect.left) / rect.width);
       stop.time = t;
+      // The runtime walks the stops in array order, so dragging one past
+      // another has to re-sort the array or the emitter reads the list
+      // differently than the bar draws it. Markers are positioned by `left`,
+      // so their DOM order is free to go stale.
+      list.list.sort((a, b) => a.time - b.time);
       m.style.left = `${(t * 100).toFixed(2)}%`;
       updateGradient();
       ctx.notifyValue();
@@ -182,39 +246,12 @@ function renderMarkers(
   });
 }
 
+/**
+ * Color at time `t`, matching the gradient bar and the running emitter — used
+ * when clicking the bar inserts a stop, so the new stop doesn't shift the ramp.
+ */
 function sampleColor(list: ValueListShape<string>, t: number): string {
-  const sorted = [...list.list].sort((a, b) => a.time - b.time);
-  if (sorted.length === 0) return "#ffffff";
-  if (t <= sorted[0].time) return sorted[0].value;
-  if (t >= sorted[sorted.length - 1].time) return sorted[sorted.length - 1].value;
-  for (let i = 0; i < sorted.length - 1; i++) {
-    const a = sorted[i];
-    const b = sorted[i + 1];
-    if (t >= a.time && t <= b.time) {
-      const span = b.time - a.time;
-      const f = span === 0 ? 0 : (t - a.time) / span;
-      return lerpHex(a.value, b.value, f);
-    }
-  }
-  return sorted[0].value;
-}
-
-function lerpHex(a: string, b: string, f: number): string {
-  const ar = hexToRgb(a);
-  const br = hexToRgb(b);
-  const r = Math.round(ar.r + (br.r - ar.r) * f);
-  const g = Math.round(ar.g + (br.g - ar.g) * f);
-  const bl = Math.round(ar.b + (br.b - ar.b) * f);
-  return "#" + [r, g, bl].map((n) => n.toString(16).padStart(2, "0")).join("");
-}
-
-function hexToRgb(hex: string): { r: number; g: number; b: number } {
-  const v = hex.replace("#", "");
-  return {
-    r: parseInt(v.slice(0, 2), 16),
-    g: parseInt(v.slice(2, 4), 16),
-    b: parseInt(v.slice(4, 6), 16),
-  };
+  return runtimeSampler(list)(t);
 }
 
 /* ---------- number list (rows) ---------- */
@@ -250,7 +287,10 @@ export function numberListControl(
   const refresh = () => {
     list.list.sort((a, b) => a.time - b.time);
     stopsWrap.innerHTML = "";
-    list.list.forEach((stop, index) => {
+    // Snapshot of the order the rows were rendered in, so the change handler
+    // can tell "a drag crossed another stop" apart from "value nudged in place".
+    const renderedOrder = [...list.list];
+    list.list.forEach((stop) => {
       const row = el("div", { class: "num-stop" });
       row.appendChild(el("span", { class: "t" }, [stop.time.toFixed(2)]));
       const tSlider = el("input", {
@@ -281,7 +321,17 @@ export function numberListControl(
       on(tSlider, "input", () => {
         stop.time = parseFloat(tSlider.value);
         (row.firstChild as HTMLElement).textContent = stop.time.toFixed(2);
+        // Keep the array ordered for the runtime while the slider is live; the
+        // rows are only re-sorted on release so the drag doesn't lose the input.
+        list.list.sort((a, b) => a.time - b.time);
         ctx.notifyValue();
+      });
+      // Range inputs fire "change" on every arrow-key step, not just on drag
+      // release, and an unconditional refresh would destroy the focused slider
+      // after one keypress. Only rebuild when the sort actually reordered the
+      // rows — the one case where the DOM is stale.
+      on(tSlider, "change", () => {
+        if (list.list.some((s, i) => s !== renderedOrder[i])) refresh();
       });
       on(vInput, "input", () => {
         const v = parseFloat(vInput.value);
@@ -291,8 +341,11 @@ export function numberListControl(
         }
       });
       on(del, "click", () => {
-        if (list.list.length > 1) {
-          list.list.splice(index, 1);
+        // By identity, not by the captured index — a time slider may have
+        // re-sorted the array since this row was built.
+        const at = list.list.indexOf(stop);
+        if (at >= 0 && list.list.length > 1) {
+          list.list.splice(at, 1);
           refresh();
           ctx.notifyValue();
         }

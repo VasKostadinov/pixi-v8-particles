@@ -86,7 +86,18 @@ export class StaticColorBehavior implements IEmitterBehavior {
       color = color.substr(2);
     }
 
-    this.value = parseInt(color, 16);
+    // Expand CSS-style 3-digit shorthand ("fff" -> "ffffff") — parsed as-is it
+    // would land as 0x000fff, a silently wrong near-blue instead of white.
+    if (color.length === 3) {
+      color = color.replace(/./g, "$&$&");
+    }
+
+    const parsed = parseInt(color, 16);
+
+    // An unparseable string gives NaN and an 8-digit AARRGGBB string gives a
+    // value above 0xFFFFFF; both make pixi v8 throw when they land on a
+    // particle's tint. Drop any alpha byte and fall back to white.
+    this.value = Number.isFinite(parsed) ? parsed & 0xffffff : 0xffffff;
   }
 
   initParticles(first: Particle): void {

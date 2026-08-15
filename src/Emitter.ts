@@ -783,7 +783,13 @@ export class Emitter {
                 particle.position.x += emitPosX;
                 particle.position.y += emitPosY;
 
-                // also, just update the particle's age properties while we are looping through
+                // also, just update the particle's age properties while we are looping through.
+                // Unlike the main loop above there is no age > maxLife check here, but the
+                // "-this._spawnTimer >= lifetime" guard in the spawn loop already skipped every
+                // particle that would catch up past its own lifetime, so the raw age/maxLife
+                // ratio stays <= 1 no matter how large a delta this update was called with.
+                // agePercent itself is NOT bounded: an overshooting customEase (back/elastic)
+                // can map that ratio past 1 — here exactly as in the main loop.
                 particle.age += -this._spawnTimer;
                 // determine our interpolation value
                 let lerp = particle.age * particle.oneOverLife; // lifetime / maxLife;

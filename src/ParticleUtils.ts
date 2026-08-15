@@ -82,14 +82,37 @@ export function rotatePoint(angle: number, p: IPointData): void {
 }
 
 /**
+ * Clamps one color channel into the 0-255 range that packs cleanly into 0xRRGGBB.
+ *
+ * Interpolated color lists routinely produce out-of-range channels: a list whose
+ * stops don't span [0, 1] is extrapolated past its ends by PropertyList, and a
+ * custom ease can push the interpolation value outside 0-1. Before pixi 7.2 an
+ * out-of-range tint just drew a wrong color for a frame, so upstream never
+ * needed this. pixi v8's Color throws "Unable to convert color" for any packed
+ * int outside [0, 0xFFFFFF], which turns that wrong frame into a crash, so the
+ * clamp has to happen before the shifts.
+ *
+ * Written as nested comparisons rather than Math.min/max so NaN (from a
+ * zero-length list segment) fails both tests and lands on 0 instead of
+ * propagating. Fractional values are left alone — the shifts truncate them
+ * exactly as they always did.
+ */
+function clampChannel(v: number): number {
+  return v > 0 ? (v < 255 ? v : 255) : 0;
+}
+
+/**
  * Combines separate color components (0-255) into a single uint color.
+ * Components outside 0-255 are clamped: out-of-range values would otherwise
+ * either overflow into a neighbouring channel's bits or produce a packed int
+ * that pixi v8 refuses to convert.
  * @param r The red value of the color
  * @param g The green value of the color
  * @param b The blue value of the color
  * @return The color in the form of 0xRRGGBB
  */
 export function combineRGBComponents(r: number, g: number, b: number /* , a*/): number {
-  return /* a << 24 |*/ (r << 16) | (g << 8) | b;
+  return /* a << 24 |*/ (clampChannel(r) << 16) | (clampChannel(g) << 8) | clampChannel(b);
 }
 
 /**

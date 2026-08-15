@@ -18,6 +18,20 @@ export class PreviewStage {
   private currentConfig: EmitterConfigV3 | null = null;
   private timeScale = 1;
   private bgSprite: Sprite | null = null;
+  /**
+   * Called when the emitter throws. Set by main.ts to raise a toast — an
+   * emitter that throws in here throws identically in a consuming game, so
+   * swallowing it into console.error (as this used to) hides real crashes
+   * from the person authoring the config.
+   */
+  public onError: ((message: string, err: unknown) => void) | null = null;
+  /**
+   * Every failure already reported for the current config, so per-frame throws
+   * don't spam one toast per frame — a Set rather than a last-key string, since
+   * two errors alternating across frames would each reset a single key and
+   * both re-toast at frame rate.
+   */
+  private reportedErrors = new Set<string>();
 
   constructor(private app: Application) {
     this.parent = new ParticleContainer();
@@ -30,7 +44,7 @@ export class PreviewStage {
         // already-alive particles stay on screen.
         this.update(time.deltaMS * 0.001 * this.timeScale);
       } catch (err) {
-        console.error("emitter update failed", err);
+        this.reportError("Emitter update failed", err);
       }
     });
     window.addEventListener("resize", () => this.relayout());
@@ -109,12 +123,25 @@ export class PreviewStage {
     const resolved = prepareForRuntime(config);
     this.currentConfig = resolved;
     this.rebuildParent(resolved);
+    // A new config gets a fresh chance to report, so fixing and re-breaking the
+    // same way still raises a toast the second time.
+    this.reportedErrors.clear();
     try {
       this.emitter = new Emitter(this.parent, resolved);
     } catch (err) {
-      console.warn("Invalid emitter config", err);
+      this.reportError("Invalid emitter config", err);
       this.emitter = null;
     }
+  }
+
+  private reportError(context: string, err: unknown): void {
+    const detail = err instanceof Error ? err.message : String(err);
+    const key = `${context}: ${detail}`;
+
+    if (this.reportedErrors.has(key)) return;
+    this.reportedErrors.add(key);
+    console.error(context, err);
+    this.onError?.(`${context} — ${detail}`, err);
   }
 
   /**
@@ -158,9 +185,15 @@ export class PreviewStage {
 }
 
 /* ------------------------------------------------------------------ */
-/* Editor-state → emitter-ready config:                               */
-/*   - resolve texture strings to Texture instances                    */
-/*   - normalize ValueLists so the runtime can't trip on edge cases    */
+/* Editor-state → emitter-ready config.                                */
+/*                                                                     */
+/* Texture strings are resolved to Texture instances and nothing else  */
+/* is touched. This used to also "normalize" ValueLists — clamping stop */
+/* times into [0, 1] and padding the ends with hold stops at 0 and 1 — */
+/* which meant the preview ran a repaired config while export shipped  */
+/* the raw one, so a list that extrapolated (and crashed) in game       */
+/* looked fine here. The runtime now tolerates every list shape the     */
+/* editor can produce, so the preview runs exactly what export writes.  */
 /* ------------------------------------------------------------------ */
 function needsSpriteBackend(config: EmitterConfigV3): boolean {
   // ParticleContainer (the v8 fast path) batches against a single TextureSource
@@ -199,14 +232,6 @@ function prepareForRuntime(config: EmitterConfigV3): EmitterConfigV3 {
   return cloned;
 }
 
-const VALUE_LIST_KEYS_BY_TYPE: Record<string, string[]> = {
-  alpha: ["alpha"],
-  color: ["color"],
-  scale: ["scale"],
-  moveSpeed: ["speed"],
-  movePath: ["speed"],
-};
-
 function normalizeBehaviorConfig(type: string, src: unknown): Record<string, unknown> {
   const cfg: Record<string, unknown> = { ...(src as object) };
 
@@ -219,45 +244,27 @@ function normalizeBehaviorConfig(type: string, src: unknown): Record<string, unk
     cfg.textures = resolved.length > 0 ? resolved : [Texture.WHITE];
   }
 
-  // value lists
-  const listKeys = VALUE_LIST_KEYS_BY_TYPE[type];
-  if (listKeys) {
-    for (const key of listKeys) {
-      const list = cfg[key] as ValueListLike | undefined;
-      if (list && Array.isArray(list.list)) cfg[key] = normalizeValueList(list);
+  // Order-only normalization of value lists: the runtime walks stops in array
+  // order, and the panel controls keep lists sorted in place — but an imported
+  // config is applied to the emitter *before* the panel renders, so sort here
+  // too or the first preview runs a different ramp than the bar and the export.
+  // A sorted copy, nothing else: times and values ship exactly as authored.
+  for (const [key, value] of Object.entries(cfg)) {
+    const maybe = value as { list?: { time?: unknown }[] } | null;
+    if (
+      maybe &&
+      typeof maybe === "object" &&
+      Array.isArray(maybe.list) &&
+      maybe.list.every((s) => s && typeof s.time === "number")
+    ) {
+      cfg[key] = {
+        ...maybe,
+        list: [...(maybe.list as { time: number }[])].sort((a, b) => a.time - b.time),
+      };
     }
   }
 
   return cfg;
-}
-
-interface ValueListLike {
-  list: { time: number; value: unknown }[];
-  isStepped?: boolean;
-}
-
-function normalizeValueList(list: ValueListLike): ValueListLike {
-  const sorted = [...list.list].sort((a, b) => a.time - b.time);
-  if (sorted.length === 0) return list;
-
-  // Clamp times into [0, 1] and anchor first=0 / last>=1 so the runtime's
-  // interpolator never walks past the end of the chain.
-  const stops = sorted.map((s) => ({
-    time: Math.max(0, Math.min(1, s.time)),
-    value: s.value,
-  }));
-  if (stops[0].time > 0) stops.unshift({ time: 0, value: stops[0].value });
-  if (stops[stops.length - 1].time < 1) {
-    stops.push({ time: 1, value: stops[stops.length - 1].value });
-  }
-  // The runtime collapses a 2-stop list to a single node when both values are
-  // equal, then trips its own complex interpolator. Force a 3rd stop so the
-  // chain is always well-formed.
-  if (stops.length === 2 && stops[0].value === stops[1].value) {
-    stops.push({ time: 1, value: stops[1].value });
-  }
-
-  return { ...list, list: stops };
 }
 
 function stringToTexture(t: unknown): Texture {

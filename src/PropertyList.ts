@@ -2,6 +2,31 @@
 import { combineRGBComponents, SimpleEase, Color } from "./ParticleUtils";
 import { PropertyNode } from "./PropertyNode";
 
+/**
+ * Rescales an interpolation value into a single segment's 0-1 range.
+ *
+ * Deliberately does NOT clamp: values outside the segment extrapolate, which is
+ * the long-standing behavior for lists whose stops don't span the full 0-1
+ * lifetime and which existing configs are tuned against. It only guards the
+ * divide — two stops sharing a time would otherwise yield Infinity/NaN and
+ * poison every value downstream.
+ */
+function segmentLerp(lerp: number, start: number, end: number): number {
+  const span = end - start;
+
+  return span === 0 ? 0 : (lerp - start) / span;
+}
+
+function intValueSingle(this: PropertyList<number>): number {
+  return this.first.value;
+}
+
+function intColorSingle(this: PropertyList<Color>): number {
+  const { r, g, b } = this.first.value;
+
+  return combineRGBComponents(r, g, b);
+}
+
 function intValueSimple(this: PropertyList<number>, lerp: number): number {
   if (this.ease) lerp = this.ease(lerp);
 
@@ -34,7 +59,7 @@ function intValueComplex(this: PropertyList<number>, lerp: number): number {
     next = next.next;
   }
   // convert the lerp value to the segment range
-  lerp = (lerp - current.time) / (next.time - current.time);
+  lerp = segmentLerp(lerp, current.time, next.time);
 
   return (next.value - current.value) * lerp + current.value;
 }
@@ -52,7 +77,7 @@ function intColorComplex(this: PropertyList<Color>, lerp: number): number {
     next = next.next;
   }
   // convert the lerp value to the segment range
-  lerp = (lerp - current.time) / (next.time - current.time);
+  lerp = segmentLerp(lerp, current.time, next.time);
   const curVal = current.value;
   const nextVal = next.value;
   const r = (nextVal.r - curVal.r) * lerp + curVal.r;
@@ -135,7 +160,13 @@ export class PropertyList<V> {
     this.first = first;
     const isSimple = first.next && first.next.time >= 1;
 
-    if (isSimple) {
+    if (!first.next) {
+      // PropertyNode.createList collapses a two-stop list into a single node when
+      // both stops carry the same value, and a one-stop list is a single node to
+      // begin with. Every other interpolator dereferences first.next, so those
+      // lists used to throw on the first update. Hold the one value instead.
+      this.interpolate = this.isColor ? intColorSingle : intValueSingle;
+    } else if (isSimple) {
       this.interpolate = this.isColor ? intColorSimple : intValueSimple;
     } else if (first.isStepped) {
       this.interpolate = this.isColor ? intColorStepped : intValueStepped;
